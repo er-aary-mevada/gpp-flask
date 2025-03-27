@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block app_content %}
+<div class="row">
+    <div class="col-md-6 col-md-offset-3">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Bulk Upload Users</h3>
+            </div>
+            <div class="panel-body">
+                {{ wtf.quick_form(form, enctype="multipart/form-data") }}
+                
+                <hr>
+                
+                <h4>CSV File Format</h4>
+                <p>Your CSV file should have the following columns:</p>
+                <pre>email,first_name,last_name,phone,department</pre>
+                
+                <p>Example:</p>
+                <pre>john.doe@gppalanpur.in,John,Doe,1234567890,Computer Science
+jane.smith@gppalanpur.in,Jane,Smith,9876543210,Electronics</pre>
+                
+                <p>
+                    <a href="{{ url_for('static', filename='sample_users.csv') }}" class="btn btn-info">
+                        <i class="fas fa-download"></i> Download Sample CSV
+                    </a>
+                </p>
+            </div>
+            <div class="panel-footer">
+                <a href="{{ url_for('admin.index') }}" class="btn btn-default">
+                    <i class="fas fa-arrow-left"></i> Back to Admin Panel
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

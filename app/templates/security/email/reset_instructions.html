@@ -1,0 +1,21 @@
+{% extends "security/email/base.html" %}
+
+{% block content %}
+<p>Hello {{ user.email }}!</p>
+
+<p>Someone has requested a password reset for your account.</p>
+
+<p>If you requested this password reset, please click on the link below:</p>
+
+<p><a href="{{ reset_link }}">Reset my password</a></p>
+
+<p>or copy and paste this link into your browser:</p>
+<p>{{ reset_link }}</p>
+
+<p>If you did not make this request, you can safely ignore this email.</p>
+
+<p>This password reset link will expire in {{ config.SECURITY_RESET_PASSWORD_WITHIN }}.</p>
+
+<p>Thank you,<br>
+The {{ config.APP_NAME }} Team</p>
+{% endblock %}

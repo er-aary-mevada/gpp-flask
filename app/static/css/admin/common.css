@@ -1,0 +1,51 @@
+/* Status Badge Component
+   ========================================================================== */
+.status-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* Status Colors */
+.status-active,
+.status-approved { background-color: #28a745; color: white; }
+.status-pending { background-color: #ffc107; color: #212529; }
+.status-blocked { background-color: #dc3545; color: white; }
+.status-rejected { background-color: #dc3545; color: white; }
+.status-registered { background-color: #17a2b8; color: white; }
+
+/* Filter Section Component
+   ========================================================================== */
+.filter-section {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.filter-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+/* Responsive adjustments for filter section */
+@media (max-width: 768px) {
+    .filter-row {
+        flex-direction: column;
+    }
+    
+    .filter-row .form-group {
+        margin-right: 0;
+        width: 100%;
+    }
+}
+
+/* Form group within filters */
+.form-inline .form-group {
+    margin-right: 10px;
+    margin-bottom: 10px;
+}

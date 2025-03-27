@@ -1,0 +1,20 @@
+/* Hover effect for table rows */
+.table tbody tr:hover {
+    background-color: rgba(0,0,0,0.02);
+}
+
+/* Status badges */
+.status-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* Status colors */
+.status-active, 
+.status-approved { background-color: #28a745; color: white; }
+.status-pending { background-color: #ffc107; color: #212529; }
+.status-blocked { background-color: #dc3545; color: white; }
+.status-registered { background-color: #17a2b8; color: white; }

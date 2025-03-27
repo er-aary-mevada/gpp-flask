@@ -1,0 +1,138 @@
+/* Filter section styling */
+.filter-section {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.form-inline .form-group {
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+/* Status badge styling */
+.status-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-active { background-color: #28a745; color: white; }
+.status-pending { background-color: #ffc107; color: #212529; }
+.status-blocked { background-color: #dc3545; color: white; }
+.status-rejected { background-color: #dc3545; color: white; }
+.status-approved { background-color: #28a745; color: white; }
+.status-registered { background-color: #17a2b8; color: white; }
+
+/* Action buttons styling */
+.action-buttons {
+    white-space: nowrap;
+}
+
+.action-buttons .btn {
+    margin-left: 5px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .form-inline {
+        flex-direction: column;
+    }
+    
+    .form-inline .form-group {
+        margin-right: 0;
+        width: 100%;
+    }
+    
+    .action-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .action-buttons .btn {
+        margin-left: 0;
+    }
+}
+
+
+/* Sortable table styles */
+.table th.sortable {
+    cursor: pointer;
+    position: relative;
+    padding-right: 40px !important;
+    user-select: none;
+    z-index: 1;
+    transition: all 0.2s ease;
+    background-color: rgba(0, 0, 0, 0.02);
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.table th.sortable::after {
+    content: " (sortable)";
+    font-size: 0.75em;
+    color: #666;
+    font-weight: normal;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    position: absolute;
+    right: 30px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.table th.sortable::before {
+    font-family: "Glyphicons Halflings";
+    content: "\e150";
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+    font-size: 0.8em;
+    opacity: 0.8;
+    transition: all 0.2s ease;
+}
+
+.table th.th-sort-asc::before {
+    content: "\e155";
+    color: #0056b3;
+    opacity: 1;
+}
+
+.table th.th-sort-desc::before {
+    content: "\e156";
+    color: #0056b3;
+    opacity: 1;
+}
+
+.table th.no-sort {
+    cursor: default;
+    background-color: transparent;
+}
+
+/* Enhanced hover effects */
+.table th.sortable:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+    border-bottom-color: #0056b3;
+}
+
+.table th.sortable:hover::after {
+    opacity: 1;
+}
+
+.table th.sortable:hover::before {
+    opacity: 1;
+    color: #0056b3;
+}
+
+/* Active sort column highlight */
+.table th.th-sort-asc,
+.table th.th-sort-desc {
+    background-color: rgba(0, 123, 255, 0.08);
+    border-bottom-color: #0056b3;
+}

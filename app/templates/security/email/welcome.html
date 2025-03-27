@@ -1,0 +1,23 @@
+{% extends "security/email/base.html" %}
+
+{% block content %}
+<p>Welcome to {{ config.APP_NAME }}!</p>
+
+<p>Thank you for registering. Your account has been created and is pending approval from an administrator.</p>
+
+<p>You will receive another email once your account has been approved.</p>
+
+<p>Your account details:</p>
+<ul>
+    <li>Email: {{ user.email }}</li>
+    <li>Role: {{ user.roles[0].name if user.roles else 'Not assigned' }}</li>
+    {% if user.department %}
+    <li>Department: {{ user.department }}</li>
+    {% endif %}
+</ul>
+
+<p>If you did not register for this account, please contact our support team immediately.</p>
+
+<p>Best regards,<br>
+The {{ config.APP_NAME }} Team</p>
+{% endblock %}

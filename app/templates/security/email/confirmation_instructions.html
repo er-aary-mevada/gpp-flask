@@ -1,0 +1,17 @@
+{% extends "security/email/base.html" %}
+
+{% block content %}
+<p>Welcome {{ user.email }}!</p>
+
+<p>To confirm your email address, please click the link below:</p>
+
+<p><a href="{{ confirmation_link }}">Confirm my account</a></p>
+
+<p>or copy and paste this link into your browser:</p>
+<p>{{ confirmation_link }}</p>
+
+<p>If you did not register for this account, please ignore this email.</p>
+
+<p>Thank you,<br>
+The {{ config.APP_NAME }} Team</p>
+{% endblock %}

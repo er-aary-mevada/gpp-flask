@@ -1,0 +1,27 @@
+{% macro render_field_with_errors(field) %}
+  <div class="form-group{% if field.errors %} has-error{% endif %}">
+    {{ field.label }}
+    {{ field(**kwargs)|safe }}
+    {% if field.errors %}
+      {% for error in field.errors %}
+        <span class="help-block">{{ error }}</span>
+      {% endfor %}
+    {% endif %}
+  </div>
+{% endmacro %}
+
+{% macro render_field(field) %}
+  {{ field(**kwargs)|safe }}
+{% endmacro %}
+
+{% macro render_form_errors(form) %}
+  {% if form.errors %}
+    <div class="alert alert-danger">
+      {% for field_name, field_errors in form.errors|dictsort if field_name not in form.hidden_fields %}
+        {% for error in field_errors %}
+          <p>{{ form[field_name].label }}: {{ error }}</p>
+        {% endfor %}
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endmacro %}

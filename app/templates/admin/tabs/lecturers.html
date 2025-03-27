@@ -1,0 +1,87 @@
+<div class="filter-section mb-3">
+    <form class="form-inline">
+        <div class="form-group mr-2">
+            <input type="text" name="lecturer_search" class="form-control" 
+                   placeholder="Search lecturers..." 
+                   value="{{ request.args.get('lecturer_search', '') }}">
+        </div>
+        <div class="form-group mr-2">
+            <select name="department" class="form-control">
+                <option value="">All Departments</option>
+                {% for dept in departments %}
+                    <option value="{{ dept }}" {% if request.args.get('department') == dept %}selected{% endif %}>
+                        {{ dept }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group mr-2">
+            <select name="status" class="form-control">
+                <option value="">All Statuses</option>
+                <option value="pending" {% if request.args.get('status') == 'pending' %}selected{% endif %}>Pending Approval</option>
+                <option value="approved" {% if request.args.get('status') == 'approved' %}selected{% endif %}>Approved</option>
+                <option value="rejected" {% if request.args.get('status') == 'rejected' %}selected{% endif %}>Rejected</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Apply</button>
+        <a href="{{ url_for('admin.index', _anchor='lecturers') }}" class="btn btn-default ml-2">Reset</a>
+        <a href="{{ url_for('admin.create_user') }}?role=lecturer" class="btn btn-success ml-2">
+            <i class="fas fa-user-plus"></i> New Lecturer
+        </a>
+        <a href="{{ url_for('admin.bulk_upload') }}?role=lecturer" class="btn btn-info ml-2">
+            <i class="fas fa-file-upload"></i> Bulk Upload
+        </a>
+    </form>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th class="sortable">ID</th>
+                <th class="sortable">Name</th>
+                <th class="sortable">Email</th>
+                <th class="sortable">Department</th>
+                <th class="sortable">Phone</th>
+                <th class="sortable">Status</th>
+                <th class="sortable">Joined Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users if 'lecturer' in user.roles|map(attribute='name') %}
+            <tr>
+                <td>{{ user.id }}</td>
+                <td>{{ user.first_name }} {{ user.last_name }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.department }}</td>
+                <td>{{ user.phone }}</td>
+                <td>
+                    {% if user.is_approved %}
+                        <span class="label label-success">Approved</span>
+                    {% else %}
+                        <span class="label label-warning">Pending</span>
+                    {% endif %}
+                </td>
+                <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+                <td>
+                    {% if not user.is_approved %}
+                    <form style="display: inline;" method="POST" action="{{ url_for('admin.approve_user', user_id=user.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-success btn-sm" title="Approve">
+                            <i class="fas fa-check"></i>
+                        </button>
+                    </form>
+                    <form style="display: inline;" method="POST" action="{{ url_for('admin.reject_user', user_id=user.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-danger btn-sm" title="Reject">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

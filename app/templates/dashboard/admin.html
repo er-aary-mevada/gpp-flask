@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+<div class="row">
+    <div class="col-md-12">
+        <h1>Admin Dashboard</h1>
+        
+        <!-- Quick Stats -->
+        <div class="row">
+            <div class="col-md-3">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Total Students</h3>
+                    </div>
+                    <div class="panel-body">
+                        <h3>{{ stats.students }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="panel panel-success">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Total Lecturers</h3>
+                    </div>
+                    <div class="panel-body">
+                        <h3>{{ stats.lecturers }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="panel panel-info">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Total Departments</h3>
+                    </div>
+                    <div class="panel-body">
+                        <h3>{{ stats.departments }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="panel panel-warning">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Pending Approvals</h3>
+                    </div>
+                    <div class="panel-body">
+                        <h3>{{ stats.pending_approvals }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Quick Actions</h3>
+                    </div>
+                    <div class="panel-body">
+                        <a href="{{ url_for('admin.create_user') }}" class="btn btn-primary">
+                            <i class="fas fa-user-plus"></i> Add User
+                        </a>
+                        <a href="{{ url_for('admin.bulk_upload') }}" class="btn btn-success">
+                            <i class="fas fa-file-upload"></i> Bulk Upload
+                        </a>
+                        <a href="{{ url_for('admin.index') }}#departments" class="btn btn-info">
+                            <i class="fas fa-building"></i> Manage Departments
+                        </a>
+                        <a href="{{ url_for('admin.index') }}#pending" class="btn btn-warning">
+                            <i class="fas fa-clock"></i> Review Pending
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Recent Activity</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Action</th>
+                                        <th>User</th>
+                                        <th>Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for activity in recent_activity %}
+                                    <tr>
+                                        <td>{{ activity.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                                        <td>{{ activity.action }}</td>
+                                        <td>{{ activity.user }}</td>
+                                        <td>{{ activity.details }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

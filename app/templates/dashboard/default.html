@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Welcome, {{ current_user.first_name or current_user.email }}</h3>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <p>Welcome to your dashboard! You are logged in as a {{ current_user.roles[0].name if current_user.roles else 'user' }}.</p>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4>Profile Information</h4>
+                                </div>
+                                <div class="card-body">
+                                    <p><strong>Email:</strong> {{ current_user.email }}</p>
+                                    <p><strong>Name:</strong> {{ current_user.first_name }} {{ current_user.last_name }}</p>
+                                    <p><strong>Phone:</strong> {{ current_user.phone or 'Not provided' }}</p>
+                                    <p><strong>Department:</strong> {{ current_user.department.name if current_user.department else 'Not assigned' }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4>Quick Actions</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="list-group">
+                                        <a href="#" class="list-group-item list-group-item-action">
+                                            <i class="fas fa-user-edit"></i> Edit Profile
+                                        </a>
+                                        <a href="#" class="list-group-item list-group-item-action">
+                                            <i class="fas fa-key"></i> Change Password
+                                        </a>
+                                        <a href="#" class="list-group-item list-group-item-action">
+                                            <i class="fas fa-bell"></i> Notification Settings
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

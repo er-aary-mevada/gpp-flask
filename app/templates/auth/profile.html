@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block app_content %}
+<div class="row">
+    <div class="col-md-8 col-md-offset-2">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Profile Details</h3>
+            </div>
+            <div class="panel-body">
+                <div class="profile-info mb-4">
+                    <dl class="dl-horizontal">
+                        <dt>Role</dt>
+                        <dd>{{ current_user.roles[0].name|title }}</dd>
+                        <dt>Department</dt>
+                        <dd>{{ current_user.department }}</dd>
+                        <dt>Status</dt>
+                        <dd>
+                            <span class="label {% if current_user.is_approved %}label-success{% else %}label-warning{% endif %}">
+                                {{ 'Approved' if current_user.is_approved else 'Pending Approval' }}
+                            </span>
+                        </dd>
+                    </dl>
+                </div>
+
+                <form method="POST" class="form" role="form">
+                    {{ form.hidden_tag() }}
+                    <div class="row">
+                        <div class="col-md-6">
+                            {{ wtf.form_field(form.first_name) }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ wtf.form_field(form.last_name) }}
+                        </div>
+                    </div>
+
+                    {{ wtf.form_field(form.phone) }}
+                    {{ wtf.form_field(form.department) }}
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">Update Profile</button>
+                        <a href="{{ url_for('dashboard.index') }}" class="btn btn-default">Back to Dashboard</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {# Change Password Section #}
+        <div class="panel panel-default mt-4">
+            <div class="panel-heading">
+                <h3 class="panel-title">Change Password</h3>
+            </div>
+            <div class="panel-body">
+                <a href="{{ url_for('security.change_password') }}" class="btn btn-warning">
+                    Change Password
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
