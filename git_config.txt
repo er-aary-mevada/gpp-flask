@@ -1,0 +1,2 @@
+user.name=Nai_parth
+user.email=naip736@gmail.com

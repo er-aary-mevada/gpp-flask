@@ -9,7 +9,14 @@ email-validator==2.0.0
 python-dotenv==0.21.1
 bcrypt==4.0.1  # Using an older version to fix compatibility issue
 passlib==1.7.4
+<<<<<<< HEAD
+pandas>=2.2.0  # Updated to latest version compatible with Python 3.13
+bleach==6.0.0
+Werkzeug<3.0.0  # Added to fix compatibility issue
+SQLAlchemy<2.0.0  # Added to fix compatibility with Flask-SQLAlchemy 2.5.1
+=======
 pandas
 bleach==6.0.0
 Werkzeug==2.2.3
 SQLAlchemy==1.4.41
+>>>>>>> a537b422b07deb4c8380735823162477dd62adba
