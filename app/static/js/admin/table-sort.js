@@ -1,7 +1,19 @@
-function sortTable(table, column, asc = true) {
-    const dirModifier = asc ? 1 : -1;
+let lastSortedColumn = null;
+let isAscending = true;
+
+function sortTable(table, column) {
     const tBody = table.tBodies[0];
     const rows = Array.from(tBody.querySelectorAll("tr"));
+
+    // Toggle sort direction if clicking the same column
+    if (lastSortedColumn === column) {
+        isAscending = !isAscending;
+    } else {
+        isAscending = true;
+        lastSortedColumn = column;
+    }
+
+    const dirModifier = isAscending ? 1 : -1;
 
     // Sort rows
     const sortedRows = rows.sort((a, b) => {
@@ -27,10 +39,14 @@ function sortTable(table, column, asc = true) {
     // Add sorted rows
     tBody.append(...sortedRows);
 
-    // Remember how the column is currently sorted
-    table.querySelectorAll("th").forEach(th => th.classList.remove("th-sort-asc", "th-sort-desc"));
-    table.querySelector(`th:nth-child(${column + 1})`).classList.toggle("th-sort-asc", asc);
-    table.querySelector(`th:nth-child(${column + 1})`).classList.toggle("th-sort-desc", !asc);
+    // Update sort indicators
+    const headers = table.querySelectorAll("th");
+    headers.forEach((header, index) => {
+        header.classList.remove("sort-asc", "sort-desc");
+        if (index === column) {
+            header.classList.add(isAscending ? "sort-asc" : "sort-desc");
+        }
+    });
 }
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -41,9 +57,12 @@ document.addEventListener("DOMContentLoaded", function() {
         headers.forEach((header, index) => {
             if (!header.classList.contains('no-sort')) {
                 header.classList.add('sortable');
-                header.addEventListener("click", () => {
-                    const currentIsAsc = header.classList.contains("th-sort-asc");
-                    sortTable(table, index, !currentIsAsc);
+                // Remove any existing click listeners
+                header.replaceWith(header.cloneNode(true));
+                
+                // Add new click listener
+                table.querySelector(`th:nth-child(${index + 1})`).addEventListener("click", () => {
+                    sortTable(table, index);
                 });
             }
         });
