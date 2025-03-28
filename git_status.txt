@@ -1,0 +1,15 @@
+On branch master
+Your branch is up to date with 'origin/master'.
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+	modified:   app/app.db
+	modified:   app/routes/admin.py
+	modified:   app/templates/admin/tabs/departments.html
+	modified:   requirements.txt
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	git_config.txt
+	git_status.txt
+
