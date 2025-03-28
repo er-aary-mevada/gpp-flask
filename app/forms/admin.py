@@ -1,47 +1,61 @@
 from flask_wtf import FlaskForm
-from flask_wtf.file import FileField, FileAllowed
+from flask_wtf.file import FileField, FileAllowed, FileRequired
 from wtforms import StringField, SelectField, SubmitField, SelectMultipleField
 from wtforms.validators import DataRequired, Email, ValidationError
 from ..models.department import Department
 
 class UserCreationForm(FlaskForm):
-    email = StringField('Email', validators=[
-        DataRequired(),
-        Email()
-    ])
-    first_name = StringField('First Name', validators=[DataRequired()])
-    last_name = StringField('Last Name', validators=[DataRequired()])
-    phone = StringField('Phone Number', validators=[DataRequired()])
-    department = SelectField('Department', coerce=int, validators=[DataRequired()])
+    email = StringField('Email', validators=[DataRequired(), Email()])
     roles = SelectMultipleField('Roles', choices=[
+        ('admin', 'Admin'),
+        ('user', 'User'),
+        ('faculty', 'Faculty'),
         ('student', 'Student'),
-        ('lecturer', 'Lecturer'),
-        ('lab_assistant', 'Lab Assistant'),
         ('hod', 'HOD'),
-        ('librarian', 'Librarian'),
-        ('principal', 'Principal'),
         ('store_officer', 'Store Officer')
     ], validators=[DataRequired()])
+    department = SelectField('Department', validators=[DataRequired()])
     submit = SubmitField('Create User')
 
     def __init__(self, *args, **kwargs):
         super(UserCreationForm, self).__init__(*args, **kwargs)
-        self.department.choices = [(0, 'Select Department')] + [
-            (dept.id, dept.name) for dept in Department.query.order_by('name')
-        ]
+        self.department.choices = [(str(d.id), d.name) for d in Department.query.all()]
+
+class UserEditForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    roles = SelectMultipleField('Roles', choices=[
+        ('admin', 'Admin'),
+        ('user', 'User'),
+        ('faculty', 'Faculty'),
+        ('student', 'Student'),
+        ('hod', 'HOD'),
+        ('store_officer', 'Store Officer')
+    ], validators=[DataRequired()])
+    department = SelectField('Department', validators=[DataRequired()])
+    submit = SubmitField('Update User')
+
+    def __init__(self, *args, **kwargs):
+        super(UserEditForm, self).__init__(*args, **kwargs)
+        self.department.choices = [(str(d.id), d.name) for d in Department.query.all()]
 
 class BulkUserUploadForm(FlaskForm):
-    file = FileField('CSV File', validators=[
-        DataRequired(),
+    user_file = FileField('User File (CSV)', validators=[
+        FileRequired(),
         FileAllowed(['csv'], 'CSV files only!')
     ])
-    roles = SelectMultipleField('Roles for All Users', choices=[
+    roles = SelectMultipleField('Default Roles', choices=[
+        ('admin', 'Admin'),
+        ('user', 'User'),
+        ('faculty', 'Faculty'),
         ('student', 'Student'),
-        ('lecturer', 'Lecturer'),
-        ('lab_assistant', 'Lab Assistant'),
         ('hod', 'HOD'),
-        ('librarian', 'Librarian'),
-        ('principal', 'Principal'),
         ('store_officer', 'Store Officer')
     ], validators=[DataRequired()])
     submit = SubmitField('Upload and Create Users')
+
+class ResultUploadForm(FlaskForm):
+    result_file = FileField('Result File (CSV)', validators=[
+        FileRequired(),
+        FileAllowed(['csv'], 'CSV files only!')
+    ])
+    submit = SubmitField('Upload Results')

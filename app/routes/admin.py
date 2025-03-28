@@ -1,10 +1,11 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
-from flask_security import roles_required, current_user
+from flask_security import roles_required, current_user, login_required
 from flask_security.utils import hash_password
 from ..models.user import User, Role
 from ..models.department import Department
 from ..models.project import Project
-from ..forms.admin import UserCreationForm, BulkUserUploadForm
+from ..models.result import Result
+from ..forms.admin import UserCreationForm, BulkUserUploadForm, ResultUploadForm
 from ..extensions import db
 from datetime import datetime
 import pandas as pd
@@ -429,3 +430,105 @@ def delete_user(user_id):
     db.session.commit()
     flash(f'User {email} has been deleted.', 'success')
     return redirect(url_for('admin.index'))
+
+@bp.route('/upload-results', methods=['GET', 'POST'])
+@login_required
+@roles_required('admin')
+def upload_results():
+    form = ResultUploadForm()
+    if form.validate_on_submit():
+        try:
+            csv_file = form.result_file.data
+            print(f"Reading CSV file...")
+            # Save file temporarily
+            csv_file.save('temp_results.csv')
+            # Read CSV file into pandas DataFrame
+            df = pd.read_csv('temp_results.csv')
+            print(f"Found {len(df)} rows in CSV")
+            
+            success_count = 0
+            # Process each row in the DataFrame
+            for _, row in df.iterrows():
+                try:
+                    # Create or update result record
+                    result = Result.query.filter_by(
+                        student_id=row['St_Id'],
+                        exam_id=row['examid']
+                    ).first()
+                    
+                    if not result:
+                        result = Result()
+                        print(f"Creating new result for student {row['St_Id']}")
+                    else:
+                        print(f"Updating existing result for student {row['St_Id']}")
+                    
+                    # Map CSV data to Result model fields
+                    result.student_id = row['St_Id']
+                    result.exam_id = row['examid']
+                    result.exam_type = row['extype']
+                    result.exam_name = row['exam']
+                    result.declaration_date = pd.to_datetime(row['DECLARATIONDATE']).date()
+                    result.academic_year = row['AcademicYear']
+                    result.semester = int(row['sem'])
+                    result.student_name = row['name']
+                    result.institute_code = row['instcode']
+                    result.institute_name = row['instName']
+                    result.course_name = row['CourseName']
+                    result.branch_code = str(row['BR_CODE'])
+                    result.branch_name = row['BR_NAME']
+                    
+                    # Store subject results as JSON
+                    subjects = {}
+                    for i in range(1, 16):  # Process SUB1 to SUB15
+                        sub_code = row.get(f'SUB{i}')
+                        if pd.notna(sub_code):
+                            subjects[f'SUB{i}'] = {
+                                'code': sub_code,
+                                'name': row.get(f'SUB{i}NA', ''),
+                                'credits': float(row.get(f'SUB{i}CR', 0)),
+                                'grade': row.get(f'SUB{i}GR', ''),
+                            }
+                    result.subject_results = subjects
+                    
+                    # Calculate total credits and grade points
+                    total_credits = 0
+                    total_grade_points = 0
+                    for sub in subjects.values():
+                        total_credits += sub['credits']
+                        grade = sub['grade']
+                        # Convert grade to grade points
+                        grade_points = {
+                            'AA': 10, 'AB': 9, 'BB': 8, 'BC': 7, 'CC': 6, 'CD': 5, 'DD': 4, 'FF': 0
+                        }.get(grade, 0)
+                        total_grade_points += sub['credits'] * grade_points
+                    
+                    result.total_credits = total_credits
+                    result.total_grade_points = total_grade_points
+                    result.sgpa = total_grade_points / total_credits if total_credits > 0 else 0.0
+                    result.result_status = 'FAIL' if 'FF' in [s['grade'] for s in subjects.values()] else 'PASS'
+                    
+                    db.session.add(result)
+                    success_count += 1
+                    
+                except Exception as e:
+                    print(f"Error processing row for student {row.get('St_Id', 'unknown')}: {str(e)}")
+                    continue
+            
+            try:
+                print(f"Committing {success_count} results to database...")
+                db.session.commit()
+                flash(f'Successfully uploaded {success_count} results!', 'success')
+            except Exception as e:
+                print(f"Error during commit: {str(e)}")
+                db.session.rollback()
+                flash(f'Error saving results to database: {str(e)}', 'danger')
+            
+            return redirect(url_for('admin.upload_results'))
+            
+        except Exception as e:
+            print(f"Error processing CSV file: {str(e)}")
+            db.session.rollback()
+            flash(f'Error uploading results: {str(e)}', 'danger')
+            return redirect(url_for('admin.upload_results'))
+    
+    return render_template('admin/upload_results.html', form=form)

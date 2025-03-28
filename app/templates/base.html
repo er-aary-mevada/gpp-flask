@@ -14,6 +14,7 @@
         }
         .alert {
             margin-top: 20px;
+            margin-bottom: 20px;
         }
         .content-section {
             padding: 20px;
@@ -49,59 +50,8 @@
         }
         .panel-title {
             font-size: 24px;
-            font-weight: 500;
-            color: #333;
-            margin: 0;
         }
-        .panel-body {
-            padding: 25px;
-        }
-        .panel-footer {
-            background-color: #f8f9fa;
-            border-bottom-left-radius: 8px;
-            border-bottom-right-radius: 8px;
-            padding: 15px 20px;
-        }
-        .panel-footer p {
-            margin: 0;
-        }
-        .navbar-nav .dropdown-menu {
-            min-width: 160px;
-        }
-        .table-responsive {
-            margin-top: 20px;
-        }
-        .filter-section {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-        }
-        .label {
-            display: inline-block;
-            padding: .2em .6em .3em;
-            font-size: 75%;
-            font-weight: 700;
-            line-height: 1;
-            color: #fff;
-            text-align: center;
-            white-space: nowrap;
-            vertical-align: baseline;
-            border-radius: .25em;
-        }
-        .label-success { background-color: #5cb85c; }
-        .label-warning { background-color: #f0ad4e; }
-        .label-danger { background-color: #d9534f; }
     </style>
-{% endblock %}
-
-{% block scripts %}
-    {{ super() }}
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-    <script src="{{ url_for('static', filename='js/admin/list-utils.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/admin/table-sort.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/admin/dashboard.js') }}"></script>
 {% endblock %}
 
 {% block navbar %}
@@ -118,22 +68,18 @@
             </div>
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">
-                    <li><a href="{{ url_for('main.index') }}">Home</a></li>
                     {% if current_user.is_authenticated %}
+                        <li><a href="{{ url_for('main.dashboard') }}">Dashboard</a></li>
                         {% if current_user.has_role('admin') %}
-                            <li><a href="{{ url_for('admin.index') }}">Admin Panel</a></li>
-                        {% endif %}
-                        {% if current_user.has_role('hod') %}
-                            <li><a href="{{ url_for('dashboard.index') }}">Dashboard</a></li>
+                            <li><a href="{{ url_for('admin.index') }}">Admin</a></li>
                         {% endif %}
                     {% endif %}
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     {% if current_user.is_authenticated %}
-                        <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
+                        <li><a href="{{ url_for('security.logout') }}">Logout</a></li>
                     {% else %}
-                        <li><a href="{{ url_for('auth.login') }}">Login</a></li>
-                        <li><a href="{{ url_for('auth.register') }}">Register</a></li>
+                        <li><a href="{{ url_for('security.login') }}">Login</a></li>
                     {% endif %}
                 </ul>
             </div>
@@ -146,8 +92,9 @@
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
                         {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 {% endfor %}
             {% endif %}
@@ -155,4 +102,13 @@
 
         {% block app_content %}{% endblock %}
     </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script src="{{ url_for('static', filename='js/admin/list-utils.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/admin/table-sort.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/admin/dashboard.js') }}"></script>
 {% endblock %}
