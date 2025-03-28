@@ -1,9 +1,12 @@
 from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from flask_security import Security, SQLAlchemyUserDatastore
 from flask_security.utils import hash_password
 from .extensions import db, mail, csrf, bootstrap, migrate
 from .models.user import User, Role
 from .models.department import Department
+from .models.project import Project
 from config import Config
 
 def create_app(config_class=Config):
