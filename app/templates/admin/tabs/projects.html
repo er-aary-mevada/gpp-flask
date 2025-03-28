@@ -39,7 +39,7 @@
                 <td>{{ project.members }}</td>
                 <td>{{ project.marks if project.marks else '' }}</td>
                 <td>
-                    <form style="display: inline;" method="POST" action="{{ url_for('admin.edit_project', project_id=project.id) }}">
+                    <form style="display: inline;">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <button type="button" class="btn btn-sm btn-primary" onclick="editProject({{ project.id }})">
                             <i class="fas fa-edit"></i> Edit
@@ -201,23 +201,27 @@
 
 <script>
 function editProject(projectId) {
-    fetch(`/admin/project/${projectId}`)
-        .then(response => response.json())
-        .then(project => {
-            document.getElementById('edit_name').value = project.name;
-            document.getElementById('edit_description').value = project.description || '';
-            document.getElementById('edit_department_id').value = project.department_id || '';
-            document.getElementById('edit_group_leader').value = project.group_leader || '';
-            document.getElementById('edit_members').value = project.members || '';
-            document.getElementById('edit_marks').value = project.marks || '';
-            
-            const form = document.getElementById('editProjectForm');
-            form.action = `/admin/edit_project/${projectId}`;
-            $('#editProjectModal').modal('show');
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error loading project details');
-        });
+    fetch(`/admin/project/${projectId}`, {
+        headers: {
+            'X-CSRFToken': document.querySelector('input[name="csrf_token"]').value
+        }
+    })
+    .then(response => response.json())
+    .then(project => {
+        document.getElementById('edit_name').value = project.name;
+        document.getElementById('edit_description').value = project.description || '';
+        document.getElementById('edit_department_id').value = project.department_id || '';
+        document.getElementById('edit_group_leader').value = project.group_leader || '';
+        document.getElementById('edit_members').value = project.members || '';
+        document.getElementById('edit_marks').value = project.marks || '';
+        
+        const form = document.getElementById('editProjectForm');
+        form.action = `/admin/edit_project/${projectId}`;
+        $('#editProjectModal').modal('show');
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error loading project details');
+    });
 }
 </script>
