@@ -41,9 +41,23 @@ A Flask application template with role-based authentication and user management 
 
 4. Initialize the database:
    ```
-   flask db upgrade
-   flask init-db
+   # Initialize everything (creates database, admin user, sample departments and projects)
+   python init_db.py
+
+   # Or initialize specific components:
+   python init_db.py --base        # Initialize base database structure only
+   python init_db.py --admin       # Create admin user only
+   python init_db.py --departments # Create departments only
+   python init_db.py --projects    # Create sample projects only
+
+   # You can also combine multiple components:
+   python init_db.py --base --admin
    ```
+   Default admin credentials:
+   - Email: admin@gppalanpur.in
+   - Password: admin123
+
+   Note: Please change the admin password after first login.
 
 5. Run the application:
    ```

@@ -2,10 +2,15 @@ from app import create_app
 from app.extensions import db
 from app.models.user import User, Role
 from app.models.department import Department
+from app.models.project import Project
+from flask_security.utils import hash_password
+from datetime import datetime
+import argparse
 
 app = create_app()
 
-def init_db():
+def init_base():
+    """Initialize basic database structure and roles."""
     with app.app_context():
         # Create all tables
         db.create_all()
@@ -28,7 +33,158 @@ def init_db():
             db.session.add(default_dept)
         
         db.session.commit()
-        print("Database initialized successfully!")
+        print("Base database initialized successfully!")
+
+def create_admin():
+    """Create admin user if it doesn't exist."""
+    with app.app_context():
+        # Get admin role
+        admin_role = Role.query.filter_by(name='admin').first()
+        if not admin_role:
+            print("Error: Admin role not found. Please run init_base first.")
+            return False
+
+        # Check if admin user exists
+        admin_email = 'admin@gppalanpur.in'
+        admin_user = User.query.filter_by(email=admin_email).first()
+        
+        if not admin_user:
+            admin_user = User(
+                email=admin_email,
+                password=hash_password('admin123'),  # Default password
+                active=True,
+                is_approved=True,
+                first_name='Admin',
+                last_name='User',
+                confirmed_at=datetime.utcnow(),
+                roles=[admin_role]
+            )
+            db.session.add(admin_user)
+            db.session.commit()
+            print(f"Admin user created successfully with email: {admin_email}")
+            print("Default password: admin123")
+            return True
+        else:
+            print("Admin user already exists")
+            return True
+
+def create_departments():
+    """Create sample departments."""
+    departments = [
+        'Computer Engineering',
+        'Mechanical Engineering',
+        'Civil Engineering',
+        'Electrical Engineering',
+        'Chemical Engineering',
+        'Electronics Engineering',
+        'Information Technology',
+        'Automobile Engineering'
+    ]
+    
+    with app.app_context():
+        for dept_name in departments:
+            dept = Department.query.filter_by(name=dept_name).first()
+            if not dept:
+                dept = Department(name=dept_name)
+                db.session.add(dept)
+                print(f"Added department: {dept_name}")
+        
+        db.session.commit()
+        print("Sample departments created successfully!")
+
+def create_sample_projects():
+    """Create sample projects for Computer Engineering department."""
+    with app.app_context():
+        # Get Computer Engineering department
+        dept = Department.query.filter_by(name='Computer Engineering').first()
+        if not dept:
+            print("Error: Computer Engineering department not found. Please create departments first.")
+            return False
+
+        # Sample projects
+        projects = [
+            {
+                'name': 'Smart Library Management System',
+                'description': 'Developing a digital library management system with RFID integration for efficient book tracking and management.',
+                'department_id': dept.id,
+                'group_leader': 'Raj Patel',
+                'members': 'Raj Patel, Priya Shah, Amit Kumar, Neha Singh',
+                'marks': None
+            },
+            {
+                'name': 'IoT Weather Station',
+                'description': 'Building a weather monitoring station using IoT sensors to collect and analyze environmental data.',
+                'department_id': dept.id,
+                'group_leader': 'Meera Desai',
+                'members': 'Meera Desai, Jay Mehta, Ravi Sharma, Anjali Patel',
+                'marks': None
+            },
+            {
+                'name': 'Student Attendance App',
+                'description': 'Mobile application for tracking student attendance using biometric authentication.',
+                'department_id': dept.id,
+                'group_leader': 'Kunal Shah',
+                'members': 'Kunal Shah, Pooja Patel, Rohan Joshi, Sneha Kumar',
+                'marks': None
+            },
+            {
+                'name': 'College Event Portal',
+                'description': 'Web portal for managing college events, registrations, and generating attendance certificates.',
+                'department_id': dept.id,
+                'group_leader': 'Anita Desai',
+                'members': 'Anita Desai, Rahul Patel, Kiran Shah, Maya Singh',
+                'marks': None
+            },
+            {
+                'name': 'Lab Equipment Tracker',
+                'description': 'System to track and manage laboratory equipment, maintenance schedules, and usage logs.',
+                'department_id': dept.id,
+                'group_leader': 'Vikram Mehta',
+                'members': 'Vikram Mehta, Nisha Patel, Arun Kumar, Divya Shah',
+                'marks': None
+            }
+        ]
+
+        # Add projects to database
+        for project_data in projects:
+            project = Project.query.filter_by(name=project_data['name']).first()
+            if not project:
+                project = Project(**project_data)
+                db.session.add(project)
+                print(f"Added project: {project_data['name']}")
+        
+        db.session.commit()
+        print("Sample projects created successfully!")
+        return True
+
+def init_all():
+    """Initialize everything in the correct order."""
+    print("Initializing database...")
+    init_base()
+    if create_admin():
+        create_departments()
+        create_sample_projects()
+    print("Database initialization complete!")
 
 if __name__ == '__main__':
-    init_db()
+    parser = argparse.ArgumentParser(description='Initialize the database with various options')
+    parser.add_argument('--all', action='store_true', help='Initialize everything (default)')
+    parser.add_argument('--base', action='store_true', help='Initialize base database structure only')
+    parser.add_argument('--admin', action='store_true', help='Create admin user only')
+    parser.add_argument('--departments', action='store_true', help='Create departments only')
+    parser.add_argument('--projects', action='store_true', help='Create sample projects only')
+    
+    args = parser.parse_args()
+    
+    # If no arguments provided or --all specified, run everything
+    if not any(vars(args).values()) or args.all:
+        init_all()
+    else:
+        if args.base:
+            init_base()
+        if args.admin:
+            create_admin()
+        if args.departments:
+            create_departments()
+        if args.projects:
+            create_sample_projects()
