@@ -136,53 +136,62 @@ def delete_department(dept_id):
     flash(f'Department {name} has been deleted.', 'success')
     return redirect(url_for('admin.index', _anchor='departments'))
 
-@bp.route('/create_user', methods=['GET', 'POST'])
+@bp.route('/users', methods=['GET'])
+@roles_required('admin')
+def users():
+    # Get role counts for the stats cards
+    role_counts = {}
+    for role in Role.query.all():
+        role_counts[role.name] = User.query.join(User.roles).filter(Role.name == role.name).count()
+
+    # Get recent users for the table
+    recent_users = User.query.order_by(User.created_at.desc()).limit(10).all()
+    
+    # Create form instance for the modal
+    form = UserCreationForm()
+
+    return render_template('admin/users.html', 
+                         form=form,
+                         role_counts=role_counts,
+                         recent_users=recent_users)
+
+@bp.route('/users/create', methods=['GET', 'POST'])
 @roles_required('admin')
 def create_user():
     form = UserCreationForm()
     
-    # Pre-select roles if provided in query parameter
-    role = request.args.get('role')
-    if role and request.method == 'GET':
-        form.roles.data = [role]  # Set as a list since it's a multiple select field
-    
     if form.validate_on_submit():
-        # Get the department
-        department = Department.query.get(form.department.data) if form.department.data != 0 else None
+        try:
+            user = User(
+                email=form.email.data,
+                first_name=form.first_name.data,
+                last_name=form.last_name.data,
+                phone=form.phone.data,
+                department_id=form.department.data,
+                password=hash_password('changeme123'),
+                is_approved=True,
+                created_at=datetime.utcnow()
+            )
+            
+            for role_name in form.roles.data:
+                role = Role.query.filter_by(name=role_name).first()
+                if role:
+                    user.roles.append(role)
+            
+            db.session.add(user)
+            db.session.commit()
+            flash('User created successfully! Temporary password: changeme123', 'success')
+        except Exception as e:
+            db.session.rollback()
+            flash('Error creating user. Please try again.', 'error')
+            current_app.logger.error(f'Error creating user: {str(e)}')
         
-        # Get or create the roles
-        user_roles = []
-        for role_name in form.roles.data:
-            role = Role.query.filter_by(name=role_name).first()
-            if not role:
-                role = Role(name=role_name)
-                db.session.add(role)
-                db.session.flush()  # Get the ID without committing
-            user_roles.append(role)
-        
-        user = User(
-            email=form.email.data,
-            password=hash_password('changeme123'),  # Temporary password
-            first_name=form.first_name.data,
-            last_name=form.last_name.data,
-            phone=form.phone.data,
-            department_id=department.id if department else None,
-            active=True,
-            is_approved=True,
-            approval_date=datetime.utcnow(),
-            approved_by=current_user
-        )
-        # Set the roles after user creation
-        user.roles = user_roles
-        
-        db.session.add(user)
-        db.session.commit()
-        flash(f'User {user.email} has been created. Temporary password: changeme123', 'success')
-        return redirect(url_for('admin.index'))
+        return redirect(url_for('admin.users'))
     
-    # Get departments for the template context
-    departments = Department.query.order_by(Department.name).all()
-    return render_template('admin/create_user.html', form=form, departments=departments)
+    if form.errors:
+        flash('Please correct the errors below.', 'error')
+    
+    return render_template('admin/create_user.html', form=form)
 
 @bp.route('/bulk_upload', methods=['GET', 'POST'])
 @roles_required('admin')
@@ -430,19 +439,6 @@ def delete_user(user_id):
     db.session.commit()
     flash(f'User {email} has been deleted.', 'success')
     return redirect(url_for('admin.index'))
-
-@bp.route('/users')
-@roles_required('admin')
-def users():
-    # Get all users
-    users = User.query.all()
-    
-    # Get role counts
-    role_counts = {}
-    for role in Role.query.all():
-        role_counts[role.name] = User.query.filter(User.roles.any(name=role.name)).count()
-    
-    return render_template('admin/users.html', users=users, role_counts=role_counts)
 
 @bp.route('/upload-results', methods=['GET', 'POST'])
 @login_required

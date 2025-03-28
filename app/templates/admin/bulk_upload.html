@@ -1,68 +1,55 @@
 {% extends "base.html" %}
 
 {% block app_content %}
-<div class="row">
-    <div class="col-md-6 col-md-offset-3">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h3 class="panel-title">Bulk Upload Users</h3>
-            </div>
-            <div class="panel-body">
-                <form method="POST" class="form" role="form" enctype="multipart/form-data">
-                    {{ form.hidden_tag() }}
-                    
-                    <div class="form-group">
-                        {{ form.file.label }}
-                        {{ form.file(class="form-control") }}
-                        {% if form.file.errors %}
-                            <ul class="text-danger">
-                            {% for error in form.file.errors %}
-                                <li>{{ error }}</li>
-                            {% endfor %}
-                            </ul>
-                        {% endif %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-upload me-2"></i> Bulk User Upload
+                        </h5>
+                        <a href="{{ url_for('admin.users') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i> Back to Users
+                        </a>
                     </div>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST" enctype="multipart/form-data" class="form" role="form">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-4">
+                            {{ form.csv_file.label(class="form-label") }}
+                            {{ form.csv_file(class="form-control") }}
+                            {% if form.csv_file.errors %}
+                                <div class="text-danger mt-1">
+                                {% for error in form.csv_file.errors %}
+                                    <small><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</small>
+                                {% endfor %}
+                                </div>
+                            {% endif %}
+                            <small class="text-muted">Upload a CSV file with the following columns: email, first_name, last_name, phone, department</small>
+                        </div>
 
-                    <div class="form-group">
-                        {{ form.roles.label }}
-                        {{ form.roles(class="form-control", multiple="multiple", size="7") }}
-                        {% if form.roles.errors %}
-                            <ul class="text-danger">
-                            {% for error in form.roles.errors %}
-                                <li>{{ error }}</li>
-                            {% endfor %}
-                            </ul>
-                        {% endif %}
-                        <small class="text-muted">Hold Ctrl (Windows) or Command (Mac) to select multiple roles. These roles will be assigned to all users in addition to any roles specified in the CSV file.</small>
-                    </div>
+                        <div class="mb-4">
+                            {{ form.default_roles.label(class="form-label") }}
+                            {{ form.default_roles(class="form-select") }}
+                            {% if form.default_roles.errors %}
+                                <div class="text-danger mt-1">
+                                {% for error in form.default_roles.errors %}
+                                    <small><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</small>
+                                {% endfor %}
+                                </div>
+                            {% endif %}
+                            <small class="text-muted">These roles will be assigned to all users in the CSV</small>
+                        </div>
 
-                    <div class="form-group">
-                        {{ form.submit(class="btn btn-primary") }}
-                    </div>
-                </form>
-                
-                <hr>
-                
-                <h4>CSV File Format</h4>
-                <p>Your CSV file should have the following columns:</p>
-                <pre>email,first_name,last_name,phone,department,roles</pre>
-                
-                <p>Example:</p>
-                <pre>john.doe@gppalanpur.in,John,Doe,1234567890,Computer Science,lecturer,hod
-jane.smith@gppalanpur.in,Jane,Smith,9876543210,Electronics,lecturer</pre>
-                
-                <p class="text-muted">Note: The 'roles' column is optional. If provided, multiple roles should be comma-separated.</p>
-                
-                <p>
-                    <a href="{{ url_for('static', filename='sample_users.csv') }}" class="btn btn-info">
-                        <i class="fas fa-download"></i> Download Sample CSV
-                    </a>
-                </p>
-            </div>
-            <div class="panel-footer">
-                <a href="{{ url_for('admin.index') }}" class="btn btn-default">
-                    <i class="fas fa-arrow-left"></i> Back to Admin Panel
-                </a>
+                        <div class="d-grid">
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
