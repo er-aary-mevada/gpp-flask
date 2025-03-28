@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
-from wtforms import StringField, SelectField, SubmitField
+from wtforms import StringField, SelectField, SubmitField, SelectMultipleField
 from wtforms.validators import DataRequired, Email, ValidationError
 from ..models.department import Department
 
@@ -13,7 +13,7 @@ class UserCreationForm(FlaskForm):
     last_name = StringField('Last Name', validators=[DataRequired()])
     phone = StringField('Phone Number', validators=[DataRequired()])
     department = SelectField('Department', coerce=int, validators=[DataRequired()])
-    role = SelectField('Role', choices=[
+    roles = SelectMultipleField('Roles', choices=[
         ('student', 'Student'),
         ('lecturer', 'Lecturer'),
         ('lab_assistant', 'Lab Assistant'),
@@ -35,7 +35,7 @@ class BulkUserUploadForm(FlaskForm):
         DataRequired(),
         FileAllowed(['csv'], 'CSV files only!')
     ])
-    role = SelectField('Role for All Users', choices=[
+    roles = SelectMultipleField('Roles for All Users', choices=[
         ('student', 'Student'),
         ('lecturer', 'Lecturer'),
         ('lab_assistant', 'Lab Assistant'),

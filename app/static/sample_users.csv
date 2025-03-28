@@ -1,5 +1,5 @@
-email,first_name,last_name,phone,department
-john.doe@gppalanpur.in,John,Doe,1234567890,Computer Science
-jane.smith@gppalanpur.in,Jane,Smith,9876543210,Electronics
-bob.wilson@gppalanpur.in,Bob,Wilson,5555555555,Mechanical
-alice.brown@gppalanpur.in,Alice,Brown,4444444444,Civil
+email,first_name,last_name,phone,department,roles
+john.doe@gppalanpur.in,John,Doe,1234567890,Computer Science,lecturer,hod
+jane.smith@gppalanpur.in,Jane,Smith,9876543210,Electronics,lecturer
+bob.wilson@gppalanpur.in,Bob,Wilson,5555555555,Mechanical,lecturer,jury
+alice.brown@gppalanpur.in,Alice,Brown,4444444444,Civil,lecturer,lab_assistant

@@ -140,21 +140,24 @@ def delete_department(dept_id):
 def create_user():
     form = UserCreationForm()
     
-    # Pre-select role if provided in query parameter
+    # Pre-select roles if provided in query parameter
     role = request.args.get('role')
     if role and request.method == 'GET':
-        form.role.data = role
+        form.roles.data = [role]  # Set as a list since it's a multiple select field
     
     if form.validate_on_submit():
         # Get the department
         department = Department.query.get(form.department.data) if form.department.data != 0 else None
         
-        # Get the role
-        role = Role.query.filter_by(name=form.role.data).first()
-        if not role:
-            role = Role(name=form.role.data)
-            db.session.add(role)
-            db.session.flush()  # Get the ID without committing
+        # Get or create the roles
+        user_roles = []
+        for role_name in form.roles.data:
+            role = Role.query.filter_by(name=role_name).first()
+            if not role:
+                role = Role(name=role_name)
+                db.session.add(role)
+                db.session.flush()  # Get the ID without committing
+            user_roles.append(role)
         
         user = User(
             email=form.email.data,
@@ -168,8 +171,8 @@ def create_user():
             approval_date=datetime.utcnow(),
             approved_by=current_user
         )
-        # Set the role after user creation
-        user.roles = [role]
+        # Set the roles after user creation
+        user.roles = user_roles
         
         db.session.add(user)
         db.session.commit()
@@ -187,7 +190,16 @@ def bulk_upload():
     if form.validate_on_submit():
         try:
             df = pd.read_csv(request.files[form.file.name])
-            role = Role.query.filter_by(name=form.role.data).first()
+            
+            # Get or create selected roles
+            user_roles = []
+            for role_name in form.roles.data:
+                role = Role.query.filter_by(name=role_name).first()
+                if not role:
+                    role = Role(name=role_name)
+                    db.session.add(role)
+                    db.session.flush()
+                user_roles.append(role)
             
             success_count = 0
             error_count = 0
@@ -208,6 +220,20 @@ def bulk_upload():
                             db.session.add(department)
                             db.session.flush()  # Get the ID without committing
                     
+                    # Handle additional roles from CSV if present
+                    roles_to_assign = user_roles.copy()  # Start with the roles selected in the form
+                    if 'roles' in row and row['roles']:
+                        additional_role_names = [r.strip() for r in str(row['roles']).split(',')]
+                        for role_name in additional_role_names:
+                            if role_name:  # Skip empty strings
+                                role = Role.query.filter_by(name=role_name).first()
+                                if not role:
+                                    role = Role(name=role_name)
+                                    db.session.add(role)
+                                    db.session.flush()
+                                if role not in roles_to_assign:
+                                    roles_to_assign.append(role)
+                    
                     user = User(
                         email=row['email'],
                         password=hash_password('changeme123'),  # Temporary password
@@ -219,7 +245,7 @@ def bulk_upload():
                         is_approved=True,
                         approval_date=datetime.utcnow(),
                         approved_by=current_user,
-                        roles=[role]
+                        roles=roles_to_assign
                     )
                     db.session.add(user)
                     success_count += 1
@@ -233,7 +259,8 @@ def bulk_upload():
             return redirect(url_for('admin.index'))
             
         except Exception as e:
-            flash(f'Error processing CSV file: {str(e)}', 'error')
+            flash(f'Error processing file: {str(e)}', 'error')
+            return redirect(url_for('admin.index'))
     
     return render_template('admin/bulk_upload.html', form=form)
 
@@ -363,18 +390,21 @@ def edit_user(user_id):
     
     if request.method == 'GET':
         form.department.data = user.department_id if user.department else 0
-        form.role.data = user.roles[0].name if user.roles else None
+        form.roles.data = [role.name for role in user.roles]
     
     if form.validate_on_submit():
         # Get the department
         department = Department.query.get(form.department.data) if form.department.data != 0 else None
         
-        # Get or create the role
-        role = Role.query.filter_by(name=form.role.data).first()
-        if not role:
-            role = Role(name=form.role.data)
-            db.session.add(role)
-            db.session.flush()
+        # Get or create the roles
+        user_roles = []
+        for role_name in form.roles.data:
+            role = Role.query.filter_by(name=role_name).first()
+            if not role:
+                role = Role(name=role_name)
+                db.session.add(role)
+                db.session.flush()
+            user_roles.append(role)
         
         # Update user details
         user.email = form.email.data
@@ -382,7 +412,7 @@ def edit_user(user_id):
         user.last_name = form.last_name.data
         user.phone = form.phone.data
         user.department_id = department.id if department else None
-        user.roles = [role]
+        user.roles = user_roles
         
         db.session.commit()
         flash(f'User {user.email} has been updated.', 'success')
