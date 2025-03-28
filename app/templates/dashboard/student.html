@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+<div class="container mt-4">
+    <h2>Student Dashboard</h2>
+    
+    <div class="row mt-4">
+        <!-- Profile Card -->
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">Profile</h4>
+                </div>
+                <div class="card-body">
+                    <p><strong>Name:</strong> {{ current_user.name }}</p>
+                    <p><strong>Student ID:</strong> {{ current_user.student_id }}</p>
+                    <p><strong>Email:</strong> {{ current_user.email }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Card -->
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">Results</h4>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <a href="{{ url_for('student.my_results') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-graduation-cap"></i> View My Results
+                        </a>
+                        {% if latest_result %}
+                        <a href="{{ url_for('student.view_result', exam_id=latest_result.exam_id) }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-star"></i> Latest Result ({{ latest_result.exam_name }})
+                            <span class="badge {% if latest_result.result_status == 'PASS' %}bg-success{% else %}bg-danger{% endif %} float-end">
+                                {{ latest_result.result_status }}
+                            </span>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Academic Info Card -->
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">Academic Info</h4>
+                </div>
+                <div class="card-body">
+                    {% if latest_result %}
+                        <p><strong>Current Semester:</strong> {{ latest_result.semester }}</p>
+                        <p><strong>Branch:</strong> {{ latest_result.branch_name }}</p>
+                        <p><strong>Latest SPI:</strong> {{ "%.2f"|format(latest_result.sgpa) }}</p>
+                        <p><strong>CPI:</strong> {{ latest_result.cpi or "N/A" }}</p>
+                    {% else %}
+                        <p>No academic information available yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

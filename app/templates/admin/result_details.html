@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <!-- Student Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">Student Information</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Student ID:</strong> {{ result.student_id }}</p>
+                            <p><strong>Name:</strong> {{ result.student_name }}</p>
+                            <p><strong>Branch:</strong> {{ result.branch_name }} ({{ result.branch_code }})</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Institute:</strong> {{ result.institute_name }} ({{ result.institute_code }})</p>
+                            <p><strong>Course:</strong> {{ result.course_name }}</p>
+                            <p><strong>Semester:</strong> {{ result.semester }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exam Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">Exam Information</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Exam ID:</strong> {{ result.exam_id }}</p>
+                            <p><strong>Exam Type:</strong> {{ result.exam_type }}</p>
+                            <p><strong>Academic Year:</strong> {{ result.academic_year }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Declaration Date:</strong> {{ result.declaration_date.strftime('%d-%m-%Y') }}</p>
+                            <p><strong>Result Status:</strong> 
+                                <span class="badge {% if result.result_status == 'PASS' %}bg-success{% else %}bg-danger{% endif %}">
+                                    {{ result.result_status }}
+                                </span>
+                            </p>
+                            <p><strong>SGPA:</strong> {{ "%.2f"|format(result.sgpa) }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subject Results -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">Subject Results</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Subject Code</th>
+                                    <th>Subject Name</th>
+                                    <th>Credits</th>
+                                    <th>Grade</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for subject_key, subject in result.subject_results.items() %}
+                                    <tr>
+                                        <td>{{ subject.code }}</td>
+                                        <td>{{ subject.name }}</td>
+                                        <td>{{ subject.credits }}</td>
+                                        <td>
+                                            <span class="badge {% if subject.grade == 'FF' %}bg-danger{% else %}bg-success{% endif %}">
+                                                {{ subject.grade }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr class="table-info">
+                                    <td colspan="2"><strong>Total</strong></td>
+                                    <td><strong>{{ result.total_credits }}</strong></td>
+                                    <td><strong>SGPA: {{ "%.2f"|format(result.sgpa) }}</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

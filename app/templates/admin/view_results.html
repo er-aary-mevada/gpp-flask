@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+<div class="container mt-4">
+    <h2>View Results</h2>
+    
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-3">
+                    <label for="branch" class="form-label">Branch</label>
+                    <select name="branch" id="branch" class="form-control">
+                        <option value="">All Branches</option>
+                        {% for code, name in branches %}
+                            <option value="{{ code }}" {% if code == current_branch %}selected{% endif %}>
+                                {{ name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="exam_type" class="form-label">Exam Type</label>
+                    <select name="exam_type" id="exam_type" class="form-control">
+                        <option value="">All Types</option>
+                        {% for type in exam_types %}
+                            <option value="{{ type[0] }}" {% if type[0] == current_exam_type %}selected{% endif %}>
+                                {{ type[0] }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="semester" class="form-label">Semester</label>
+                    <select name="semester" id="semester" class="form-control">
+                        <option value="">All Semesters</option>
+                        {% for sem in semesters %}
+                            <option value="{{ sem[0] }}" {% if sem[0]|string == current_semester %}selected{% endif %}>
+                                {{ sem[0] }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary">Apply Filters</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Results Table -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Student ID</th>
+                            <th>Name</th>
+                            <th>Branch</th>
+                            <th>Semester</th>
+                            <th>Exam Type</th>
+                            <th>SGPA</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for result in results.items %}
+                            <tr>
+                                <td>{{ result.student_id }}</td>
+                                <td>{{ result.student_name }}</td>
+                                <td>{{ result.branch_name }}</td>
+                                <td>{{ result.semester }}</td>
+                                <td>{{ result.exam_type }}</td>
+                                <td>{{ "%.2f"|format(result.sgpa) }}</td>
+                                <td>
+                                    <span class="badge {% if result.result_status == 'PASS' %}bg-success{% else %}bg-danger{% endif %}">
+                                        {{ result.result_status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('admin.view_result_details', student_id=result.student_id, exam_id=result.exam_id) }}" 
+                                       class="btn btn-sm btn-info">
+                                        View Details
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    {% if results.has_prev %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('admin.view_results', page=results.prev_num, branch=current_branch, exam_type=current_exam_type, semester=current_semester) }}">Previous</a>
+                        </li>
+                    {% endif %}
+
+                    {% for page_num in results.iter_pages(left_edge=2, left_current=2, right_current=3, right_edge=2) %}
+                        {% if page_num %}
+                            <li class="page-item {% if page_num == results.page %}active{% endif %}">
+                                <a class="page-link" href="{{ url_for('admin.view_results', page=page_num, branch=current_branch, exam_type=current_exam_type, semester=current_semester) }}">{{ page_num }}</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if results.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('admin.view_results', page=results.next_num, branch=current_branch, exam_type=current_exam_type, semester=current_semester) }}">Next</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -431,6 +431,19 @@ def delete_user(user_id):
     flash(f'User {email} has been deleted.', 'success')
     return redirect(url_for('admin.index'))
 
+@bp.route('/users')
+@roles_required('admin')
+def users():
+    # Get all users
+    users = User.query.all()
+    
+    # Get role counts
+    role_counts = {}
+    for role in Role.query.all():
+        role_counts[role.name] = User.query.filter(User.roles.any(name=role.name)).count()
+    
+    return render_template('admin/users.html', users=users, role_counts=role_counts)
+
 @bp.route('/upload-results', methods=['GET', 'POST'])
 @login_required
 @roles_required('admin')
@@ -532,3 +545,55 @@ def upload_results():
             return redirect(url_for('admin.upload_results'))
     
     return render_template('admin/upload_results.html', form=form)
+
+@bp.route('/view-results')
+@login_required
+@roles_required('admin')
+def view_results():
+    page = request.args.get('page', 1, type=int)
+    branch = request.args.get('branch', '')
+    exam_type = request.args.get('exam_type', '')
+    semester = request.args.get('semester', '')
+    
+    # Base query
+    query = Result.query
+    
+    # Apply filters
+    if branch:
+        query = query.filter(Result.branch_code == branch)
+    if exam_type:
+        query = query.filter(Result.exam_type == exam_type)
+    if semester:
+        query = query.filter(Result.semester == semester)
+    
+    # Get unique filter options for dropdowns
+    branches = db.session.query(Result.branch_code, Result.branch_name).distinct().all()
+    exam_types = db.session.query(Result.exam_type).distinct().all()
+    semesters = db.session.query(Result.semester).distinct().order_by(Result.semester).all()
+    
+    # Paginate results
+    results = query.order_by(Result.declaration_date.desc()).paginate(
+        page=page, per_page=50, error_out=False)
+    
+    return render_template('admin/view_results.html',
+                         results=results,
+                         branches=branches,
+                         exam_types=exam_types,
+                         semesters=semesters,
+                         current_branch=branch,
+                         current_exam_type=exam_type,
+                         current_semester=semester)
+
+@bp.route('/result/<string:student_id>/<string:exam_id>')
+@login_required
+def view_result_details(student_id, exam_id):
+    result = Result.query.filter_by(
+        student_id=student_id,
+        exam_id=exam_id
+    ).first_or_404()
+    
+    # Check if user has permission to view this result
+    if not current_user.has_role('admin') and current_user.student_id != student_id:
+        abort(403)
+    
+    return render_template('admin/result_details.html', result=result)

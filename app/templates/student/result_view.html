@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <div class="row">
+                <div class="col-md-2">
+                    <img src="{{ url_for('static', filename='images/gtu-logo.png') }}" alt="GTU Logo" class="img-fluid" style="max-height: 80px;">
+                </div>
+                <div class="col-md-10">
+                    <h2 class="text-center mb-0">Gujarat Technological University Ahmedabad</h2>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card-body">
+            <!-- Search Result Section -->
+            <div class="border p-3 mb-4">
+                <h5 class="text-success mb-3">🔍 SEARCH RESULT:</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <td><strong>Name</strong></td>
+                                <td>{{ result.student_name }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Enrollment No.</strong></td>
+                                <td>{{ result.student_id }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Exam Seat No.</strong></td>
+                                <td>{{ result.exam_id }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <td><strong>Declared On</strong></td>
+                                <td>{{ result.declaration_date.strftime('%d %b %Y') }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Exam</strong></td>
+                                <td>{{ result.exam_name }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Branch</strong></td>
+                                <td>{{ result.branch_name }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Table -->
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-center" style="width: 100px;">SUBJECT CODE</th>
+                            <th>SUBJECT NAME</th>
+                            <th colspan="3" class="text-center">Theory Grade</th>
+                            <th colspan="3" class="text-center">Practical Grade</th>
+                            <th class="text-center" style="width: 100px;">Subject Grade</th>
+                        </tr>
+                        <tr>
+                            <th colspan="2"></th>
+                            <th class="text-center">ESE</th>
+                            <th class="text-center">PA</th>
+                            <th class="text-center">TOTAL</th>
+                            <th class="text-center">ESE</th>
+                            <th class="text-center">PA</th>
+                            <th class="text-center">TOTAL</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for subject_key, subject in result.subject_results.items() %}
+                            <tr>
+                                <td class="text-center">{{ subject.code }}</td>
+                                <td>{{ subject.name }}</td>
+                                {% if subject.theory_grade is defined %}
+                                    <td class="text-center">{{ subject.theory_grade.ese or '-' }}</td>
+                                    <td class="text-center">{{ subject.theory_grade.pa or '-' }}</td>
+                                    <td class="text-center">{{ subject.theory_grade.total or '-' }}</td>
+                                {% else %}
+                                    <td class="text-center">-</td>
+                                    <td class="text-center">-</td>
+                                    <td class="text-center">-</td>
+                                {% endif %}
+                                {% if subject.practical_grade is defined %}
+                                    <td class="text-center">{{ subject.practical_grade.ese or '-' }}</td>
+                                    <td class="text-center">{{ subject.practical_grade.pa or '-' }}</td>
+                                    <td class="text-center">{{ subject.practical_grade.total or '-' }}</td>
+                                {% else %}
+                                    <td class="text-center">-</td>
+                                    <td class="text-center">-</td>
+                                    <td class="text-center">-</td>
+                                {% endif %}
+                                <td class="text-center">
+                                    <span class="badge {% if subject.grade == 'FF' %}bg-danger{% else %}bg-success{% endif %}">
+                                        {{ subject.grade }}
+                                    </span>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Summary Section -->
+            <div class="row mt-4">
+                <div class="col-md-4">
+                    <p><strong>Current Sem. Backlog:</strong> {{ result.current_backlog or 0 }}</p>
+                </div>
+                <div class="col-md-4">
+                    <p><strong>Total Backlog:</strong> {{ result.total_backlog or 0 }}</p>
+                </div>
+                <div class="col-md-4">
+                    <p><strong>SPI:</strong> {{ "%.2f"|format(result.sgpa) }}</p>
+                    <p><strong>CPI:</strong> {{ result.cpi or "N/A" }}</p>
+                </div>
+            </div>
+
+            <!-- Result Status -->
+            <div class="mt-4 text-center">
+                <div class="alert {% if result.result_status == 'PASS' %}alert-success{% else %}alert-danger{% endif %}">
+                    <strong>{{ "Congratulation!! You have passed this exam." if result.result_status == 'PASS' else "You have not cleared this exam." }}</strong>
+                </div>
+                <p class="text-muted small">Note: This is a computer generated mark-sheet.</p>
+                <p class="text-muted small">Printed On: {{ result.declaration_date.strftime('%A, %B %d, %Y - %I:%M:%S %p') }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

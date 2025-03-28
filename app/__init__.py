@@ -29,10 +29,12 @@ def create_app(config_class=Config):
     from .routes.auth import bp as auth_bp
     from .routes.admin import bp as admin_bp
     from .routes.dashboard import bp as dashboard_bp
+    from .routes.student import bp as student_bp
     
     app.register_blueprint(main_bp)  # Root routes
     app.register_blueprint(auth_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(dashboard_bp)
+    app.register_blueprint(student_bp, url_prefix='/student')
 
     return app

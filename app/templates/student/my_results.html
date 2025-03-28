@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title mb-0">My Results</h3>
+        </div>
+        <div class="card-body">
+            {% if results %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Exam</th>
+                                <th>Semester</th>
+                                <th>Declaration Date</th>
+                                <th>SPI</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for result in results %}
+                                <tr>
+                                    <td>{{ result.exam_name }}</td>
+                                    <td>{{ result.semester }}</td>
+                                    <td>{{ result.declaration_date.strftime('%d-%m-%Y') }}</td>
+                                    <td>{{ "%.2f"|format(result.sgpa) }}</td>
+                                    <td>
+                                        <span class="badge {% if result.result_status == 'PASS' %}bg-success{% else %}bg-danger{% endif %}">
+                                            {{ result.result_status }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('student.view_result', exam_id=result.exam_id) }}" 
+                                           class="btn btn-sm btn-primary">
+                                            View Result
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    No results found.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
