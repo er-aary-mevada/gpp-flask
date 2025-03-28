@@ -109,7 +109,12 @@ def create_sample_projects():
                 'department_id': dept.id,
                 'group_leader': 'Raj Patel',
                 'members': 'Raj Patel, Priya Shah, Amit Kumar, Neha Singh',
-                'marks': None
+                'marks': None,
+                'presentation_type': 'Demo Model',
+                'semester': '6th Sem',
+                'faculty_mentor': 'Dr. Mehta',
+                'mobile_number': '9876543210',
+                'submission_timestamp': datetime.now()
             },
             {
                 'name': 'IoT Weather Station',
@@ -117,7 +122,12 @@ def create_sample_projects():
                 'department_id': dept.id,
                 'group_leader': 'Meera Desai',
                 'members': 'Meera Desai, Jay Mehta, Ravi Sharma, Anjali Patel',
-                'marks': None
+                'marks': None,
+                'presentation_type': 'Demo Model',
+                'semester': '6th Sem',
+                'faculty_mentor': 'Prof. Shah',
+                'mobile_number': '9876543211',
+                'submission_timestamp': datetime.now()
             },
             {
                 'name': 'Student Attendance App',
@@ -125,7 +135,12 @@ def create_sample_projects():
                 'department_id': dept.id,
                 'group_leader': 'Kunal Shah',
                 'members': 'Kunal Shah, Pooja Patel, Rohan Joshi, Sneha Kumar',
-                'marks': None
+                'marks': None,
+                'presentation_type': 'Demo Model',
+                'semester': '6th Sem',
+                'faculty_mentor': 'Dr. Patel',
+                'mobile_number': '9876543212',
+                'submission_timestamp': datetime.now()
             },
             {
                 'name': 'College Event Portal',
@@ -133,7 +148,12 @@ def create_sample_projects():
                 'department_id': dept.id,
                 'group_leader': 'Anita Desai',
                 'members': 'Anita Desai, Rahul Patel, Kiran Shah, Maya Singh',
-                'marks': None
+                'marks': None,
+                'presentation_type': 'Demo Model',
+                'semester': '6th Sem',
+                'faculty_mentor': 'Prof. Kumar',
+                'mobile_number': '9876543213',
+                'submission_timestamp': datetime.now()
             },
             {
                 'name': 'Lab Equipment Tracker',
@@ -141,7 +161,12 @@ def create_sample_projects():
                 'department_id': dept.id,
                 'group_leader': 'Vikram Mehta',
                 'members': 'Vikram Mehta, Nisha Patel, Arun Kumar, Divya Shah',
-                'marks': None
+                'marks': None,
+                'presentation_type': 'Demo Model',
+                'semester': '6th Sem',
+                'faculty_mentor': 'Dr. Singh',
+                'mobile_number': '9876543214',
+                'submission_timestamp': datetime.now()
             }
         ]
 
