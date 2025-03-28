@@ -1,2 +1,1 @@
-[master a96ad99] Added department search functionality and improved UI
- 4 files changed, 139 insertions(+), 132 deletions(-)
+[master 2ae4111] Updated requirements.txt with dependency versions

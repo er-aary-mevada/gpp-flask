@@ -1,15 +1,11 @@
 On branch master
-Your branch is up to date with 'origin/master'.
+Your branch is ahead of 'origin/master' by 3 commits.
+  (use "git push" to publish your local commits)
 
-Changes to be committed:
-  (use "git restore --staged <file>..." to unstage)
-	modified:   app/app.db
-	modified:   app/routes/admin.py
-	modified:   app/templates/admin/tabs/departments.html
-	modified:   requirements.txt
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   git_commit.txt
+	modified:   git_status.txt
 
-Untracked files:
-  (use "git add <file>..." to include in what will be committed)
-	git_config.txt
-	git_status.txt
-
+no changes added to commit (use "git add" and/or "git commit -a")
