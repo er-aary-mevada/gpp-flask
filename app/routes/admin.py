@@ -31,8 +31,14 @@ def index():
     librarians = User.query.filter(User.roles.contains(librarian_role)).all() if librarian_role else []
     store_officers = User.query.filter(User.roles.contains(store_officer_role)).all() if store_officer_role else []
     
-    # Get departments
-    departments = Department.query.all()
+    # Get departments with search filter
+    search_query = request.args.get('dept_search', '').strip()
+    departments_query = Department.query
+    
+    if search_query:
+        departments_query = departments_query.filter(Department.name.ilike(f'%{search_query}%'))
+    
+    departments = departments_query.all()
     
     return render_template('admin/index.html', 
                          pending_users=pending_users,
@@ -42,7 +48,8 @@ def index():
                          lab_assistants=lab_assistants,
                          librarians=librarians,
                          store_officers=store_officers,
-                         departments=departments)
+                         departments=departments,
+                         dept_search=search_query)
 
 @bp.route('/approve_user/<int:user_id>', methods=['POST'])
 @roles_required('admin')
