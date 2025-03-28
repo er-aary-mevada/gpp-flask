@@ -50,6 +50,11 @@
                     <i class="fas fa-store"></i> Store Officers
                 </a>
             </li>
+            <li role="presentation">
+                <a href="#projects" aria-controls="projects" role="tab" data-toggle="tab">
+                    <i class="fas fa-project-diagram"></i> Projects
+                </a>
+            </li>
         </ul>
 
         <!-- Tab Content -->
@@ -139,6 +144,11 @@
             <!-- Store Officers Tab -->
             <div role="tabpanel" class="tab-pane" id="store_officers">
                 {% include "admin/tabs/store_officers.html" %}
+            </div>
+
+            <!-- Projects Tab -->
+            <div role="tabpanel" class="tab-pane" id="projects">
+                {% include "admin/tabs/projects.html" %}
             </div>
         </div>
     </div>

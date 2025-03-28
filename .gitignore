@@ -46,3 +46,8 @@ env/
 *.log
 *.sqlite
 *.db
+
+# SQLite database
+*.db
+instance/
+.env

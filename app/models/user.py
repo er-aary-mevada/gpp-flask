@@ -31,7 +31,7 @@ class User(db.Model, UserMixin):
     phone = db.Column(db.String(20))
     
     # Department relationship
-    department_id = db.Column(db.Integer, db.ForeignKey('department.id', name='fk_user_department'))
+    department_id = db.Column(db.Integer, db.ForeignKey('departments.id', name='fk_user_department'))
     
     # Approval fields
     is_approved = db.Column(db.Boolean, default=False)

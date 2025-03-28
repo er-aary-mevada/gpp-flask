@@ -1,0 +1,6 @@
+name,description,start_date,end_date,status,department_id
+Smart Library Management System,Developing a digital library management system with RFID integration,2025-04-01,2025-06-30,In Progress,1
+IoT Weather Station,Building a weather monitoring station using IoT sensors,2025-05-01,2025-07-31,Not Started,1
+Student Attendance App,Mobile application for tracking student attendance using biometrics,2025-03-15,2025-05-30,In Progress,1
+College Event Portal,Web portal for managing college events and registrations,2025-06-01,2025-08-31,Not Started,1
+Lab Equipment Tracker,System to track and manage laboratory equipment,2025-04-15,2025-07-15,Not Started,1

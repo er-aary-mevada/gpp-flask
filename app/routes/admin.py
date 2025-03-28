@@ -3,10 +3,13 @@ from flask_security import roles_required, current_user
 from flask_security.utils import hash_password
 from ..models.user import User, Role
 from ..models.department import Department
+from ..models.project import Project
 from ..forms.admin import UserCreationForm, BulkUserUploadForm
 from ..extensions import db
 from datetime import datetime
 import pandas as pd
+import os
+from flask import current_app
 
 bp = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -31,14 +34,11 @@ def index():
     librarians = User.query.filter(User.roles.contains(librarian_role)).all() if librarian_role else []
     store_officers = User.query.filter(User.roles.contains(store_officer_role)).all() if store_officer_role else []
     
-    # Get departments with search filter
-    search_query = request.args.get('dept_search', '').strip()
-    departments_query = Department.query
+    # Get departments
+    departments = Department.query.all()
     
-    if search_query:
-        departments_query = departments_query.filter(Department.name.ilike(f'%{search_query}%'))
-    
-    departments = departments_query.all()
+    # Get projects
+    projects = Project.query.all()
     
     return render_template('admin/index.html', 
                          pending_users=pending_users,
@@ -49,7 +49,7 @@ def index():
                          librarians=librarians,
                          store_officers=store_officers,
                          departments=departments,
-                         dept_search=search_query)
+                         projects=projects)
 
 @bp.route('/approve_user/<int:user_id>', methods=['POST'])
 @roles_required('admin')
@@ -246,6 +246,114 @@ def get_department(dept_id):
         'name': department.name,
         'hod_id': department.hod_id if department.hod else None
     })
+
+@bp.route('/project/<int:project_id>')
+@roles_required('admin')
+def get_project(project_id):
+    project = Project.query.get_or_404(project_id)
+    return jsonify({
+        'id': project.id,
+        'name': project.name,
+        'description': project.description,
+        'department_id': project.department_id,
+        'group_leader': project.group_leader,
+        'members': project.members,
+        'marks': project.marks
+    })
+
+@bp.route('/create_project', methods=['POST'])
+@roles_required('admin')
+def create_project():
+    name = request.form.get('name')
+    if not name:
+        flash('Project name is required.', 'error')
+        return redirect(url_for('admin.index', _anchor='projects'))
+    
+    project = Project(
+        name=name,
+        description=request.form.get('description', ''),
+        department_id=request.form.get('department_id'),
+        group_leader=request.form.get('group_leader'),
+        members=request.form.get('members'),
+        marks=None  # Marks will be added through Jury file
+    )
+    
+    db.session.add(project)
+    db.session.commit()
+    
+    flash(f'Project {name} has been created.', 'success')
+    return redirect(url_for('admin.index', _anchor='projects'))
+
+@bp.route('/edit_project/<int:project_id>', methods=['POST'])
+@roles_required('admin')
+def edit_project(project_id):
+    project = Project.query.get_or_404(project_id)
+    
+    name = request.form.get('name')
+    if not name:
+        flash('Project name is required.', 'error')
+        return redirect(url_for('admin.index', _anchor='projects'))
+    
+    project.name = name
+    project.description = request.form.get('description', '')
+    project.department_id = request.form.get('department_id')
+    project.group_leader = request.form.get('group_leader')
+    project.members = request.form.get('members')
+    # Don't update marks - they will be added through Jury file
+    
+    db.session.commit()
+    
+    flash(f'Project {name} has been updated.', 'success')
+    return redirect(url_for('admin.index', _anchor='projects'))
+
+@bp.route('/delete_project/<int:project_id>', methods=['POST'])
+@roles_required('admin')
+def delete_project(project_id):
+    project = Project.query.get_or_404(project_id)
+    name = project.name
+    
+    db.session.delete(project)
+    db.session.commit()
+    
+    flash(f'Project {name} has been deleted.', 'success')
+    return redirect(url_for('admin.index', _anchor='projects'))
+
+@bp.route('/import_projects', methods=['POST'])
+@roles_required('admin')
+def import_projects():
+    if 'csv_file' not in request.files:
+        flash('No file uploaded.', 'error')
+        return redirect(url_for('admin.index', _anchor='projects'))
+    
+    file = request.files['csv_file']
+    if file.filename == '':
+        flash('No file selected.', 'error')
+        return redirect(url_for('admin.index', _anchor='projects'))
+    
+    if not file.filename.endswith('.csv'):
+        flash('Please upload a CSV file.', 'error')
+        return redirect(url_for('admin.index', _anchor='projects'))
+    
+    try:
+        # Save the file temporarily
+        temp_path = os.path.join(current_app.config['UPLOAD_FOLDER'], 'temp.csv')
+        file.save(temp_path)
+        
+        # Import projects from CSV
+        projects = Project.import_from_csv(temp_path)
+        
+        # Add all projects to database
+        for project in projects:
+            db.session.add(project)
+        
+        db.session.commit()
+        os.remove(temp_path)  # Clean up temp file
+        
+        flash(f'Successfully imported {len(projects)} projects.', 'success')
+    except Exception as e:
+        flash(f'Error importing projects: {str(e)}', 'error')
+    
+    return redirect(url_for('admin.index', _anchor='projects'))
 
 @bp.route('/edit_user/<int:user_id>', methods=['GET', 'POST'])
 @roles_required('admin')
