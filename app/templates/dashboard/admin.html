@@ -6,10 +6,10 @@
     <div class="dashboard-header">
         <h1>Admin Dashboard</h1>
         <div class="header-actions">
-            <a href="{{ url_for('admin.create_user') }}" class="btn btn-primary">
+            <a href="{{ url_for('admin.create_user') }}" class="btn btn-primary btn-lg">
                 <i class="fas fa-user-plus"></i> Add User
             </a>
-            <a href="{{ url_for('admin.upload_results') }}" class="btn btn-success">
+            <a href="{{ url_for('admin.upload_results') }}" class="btn btn-success btn-lg">
                 <i class="fas fa-upload"></i> Upload Results
             </a>
         </div>
@@ -107,6 +107,49 @@
                 </a>
             </div>
         </div>
+
+        <!-- Departments Card -->
+        <div class="card">
+            <div class="department-header">
+                <h2>Departments</h2>
+                <div class="search-box">
+                    <input type="text" class="search-input" placeholder="Search departments...">
+                    <button class="btn-search">Search</button>
+                </div>
+            </div>
+            <button class="btn-new">+ New Department</button>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Department Name</th>
+                            <th>HOD</th>
+                            <th>Total Students</th>
+                            <th>Total Lecturers</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for dept in departments %}
+                        <tr>
+                            <td>{{ dept.id }}</td>
+                            <td>{{ dept.name }}</td>
+                            <td>{{ dept.hod or 'Not Assigned' }}</td>
+                            <td>{{ dept.total_students }}</td>
+                            <td>{{ dept.total_lecturers }}</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn-edit">Edit</button>
+                                    <button class="btn-delete">Delete</button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
     <!-- Recent Results Table -->
@@ -118,7 +161,7 @@
                     <i class="fas fa-search"></i>
                     <input type="text" id="resultSearch" placeholder="Search results...">
                 </div>
-                <a href="{{ url_for('admin.view_results') }}" class="btn btn-outline-primary">View All</a>
+                <a href="{{ url_for('admin.view_results') }}" class="btn btn-outline-primary btn-lg">View All</a>
             </div>
         </div>
         <div class="table-responsive">
@@ -148,11 +191,11 @@
                         <td>
                             <div class="action-buttons">
                                 <a href="{{ url_for('admin.result_details', result_id=result.id) }}" 
-                                   class="btn btn-sm btn-info" title="View Details">
+                                   class="btn btn-info" title="View Details">
                                     <i class="fas fa-eye"></i>
                                 </a>
                                 <a href="{{ url_for('admin.edit_result', result_id=result.id) }}" 
-                                   class="btn btn-sm btn-warning" title="Edit">
+                                   class="btn btn-warning" title="Edit">
                                     <i class="fas fa-edit"></i>
                                 </a>
                             </div>
@@ -168,8 +211,8 @@
 <style>
     .admin-dashboard {
         padding: 2rem;
-        max-width: 1400px;
         margin: 0 auto;
+        min-height: calc(100vh - 70px);
     }
 
     /* Dashboard Header */
@@ -181,9 +224,10 @@
     }
 
     .dashboard-header h1 {
-        font-size: 2rem;
+        font-size: 2.5rem;
         color: var(--text-color);
         margin: 0;
+        font-weight: bold;
     }
 
     .header-actions {
@@ -191,23 +235,29 @@
         gap: 1rem;
     }
 
+    .btn-lg {
+        padding: 0.8rem 1.5rem;
+        font-size: 1.1rem;
+    }
+
     /* Stats Grid */
     .stats-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 1.5rem;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
         margin-bottom: 2rem;
     }
 
     .stat-card {
         background: var(--card-bg);
-        border-radius: 12px;
-        padding: 1.5rem;
+        border-radius: 15px;
+        padding: 2rem;
         display: flex;
         align-items: center;
-        gap: 1.5rem;
+        gap: 2rem;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
         cursor: pointer;
+        min-height: 180px;
     }
 
     .stat-card:hover {
@@ -215,18 +265,18 @@
         box-shadow: 0 8px 16px rgba(0,0,0,0.1);
     }
 
-    .stat-card.students { border-left: 4px solid #4e73df; }
-    .stat-card.results { border-left: 4px solid #1cc88a; }
-    .stat-card.recent { border-left: 4px solid #36b9cc; }
+    .stat-card.students { border-left: 6px solid #4e73df; }
+    .stat-card.results { border-left: 6px solid #1cc88a; }
+    .stat-card.recent { border-left: 6px solid #36b9cc; }
 
     .stat-icon {
-        width: 60px;
-        height: 60px;
+        width: 80px;
+        height: 80px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.5rem;
+        font-size: 2rem;
     }
 
     .students .stat-icon {
@@ -246,13 +296,14 @@
 
     .stat-content h3 {
         margin: 0;
-        font-size: 0.9rem;
+        font-size: 1.2rem;
         text-transform: uppercase;
         opacity: 0.8;
+        margin-bottom: 0.5rem;
     }
 
     .stat-value {
-        font-size: 2rem;
+        font-size: 3rem;
         font-weight: bold;
         color: var(--text-color);
     }
@@ -260,19 +311,19 @@
     /* Action Grid */
     .action-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-        gap: 1.5rem;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
         margin-bottom: 2rem;
     }
 
     .action-card {
         background: var(--card-bg);
-        border-radius: 12px;
+        border-radius: 15px;
         overflow: hidden;
     }
 
     .action-card .card-header {
-        padding: 1.25rem;
+        padding: 1.5rem 2rem;
         background: var(--card-bg);
         border-bottom: 1px solid var(--panel-border);
         display: flex;
@@ -282,67 +333,71 @@
 
     .card-header h2 {
         margin: 0;
-        font-size: 1.25rem;
+        font-size: 1.5rem;
         color: var(--text-color);
     }
 
     .view-all {
         color: var(--link-color);
         text-decoration: none;
-        font-size: 0.9rem;
+        font-size: 1.1rem;
+        font-weight: 500;
     }
 
     .card-content {
-        padding: 1rem;
+        padding: 1.5rem;
     }
 
     .action-item {
         display: flex;
         align-items: center;
-        gap: 1rem;
-        padding: 1rem;
+        gap: 1.5rem;
+        padding: 1.5rem;
         text-decoration: none;
         color: var(--text-color);
         transition: all 0.3s ease;
-        border-radius: 8px;
+        border-radius: 12px;
+        margin-bottom: 1rem;
     }
 
     .action-item:hover {
         background: var(--bg-color);
-        transform: translateX(5px);
+        transform: translateX(10px);
     }
 
     .action-item i {
-        width: 40px;
-        height: 40px;
-        border-radius: 8px;
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
         background: var(--bg-color);
         color: var(--link-color);
+        font-size: 1.5rem;
     }
 
     .action-item h4 {
         margin: 0;
-        font-size: 1rem;
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
     }
 
     .action-item p {
         margin: 0;
-        font-size: 0.9rem;
+        font-size: 1rem;
         opacity: 0.7;
     }
 
     /* Recent Results Table */
     .recent-results {
         background: var(--card-bg);
-        border-radius: 12px;
+        border-radius: 15px;
         overflow: hidden;
     }
 
     .table-header {
-        padding: 1.25rem;
+        padding: 1.5rem 2rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -351,14 +406,14 @@
 
     .table-header h2 {
         margin: 0;
-        font-size: 1.25rem;
+        font-size: 1.5rem;
         color: var(--text-color);
     }
 
     .table-actions {
         display: flex;
         align-items: center;
-        gap: 1rem;
+        gap: 1.5rem;
     }
 
     .search-box {
@@ -367,45 +422,66 @@
 
     .search-box i {
         position: absolute;
-        left: 12px;
+        left: 15px;
         top: 50%;
         transform: translateY(-50%);
         color: var(--text-color);
         opacity: 0.5;
+        font-size: 1.2rem;
     }
 
     .search-box input {
-        padding: 0.5rem 1rem 0.5rem 2.5rem;
+        padding: 0.8rem 1rem 0.8rem 3rem;
         border: 1px solid var(--input-border);
-        border-radius: 20px;
+        border-radius: 25px;
         background: var(--input-bg);
         color: var(--text-color);
-        width: 250px;
+        width: 300px;
+        font-size: 1.1rem;
     }
 
     .table {
         margin: 0;
+        font-size: 1.1rem;
+        width: 100%;
+        margin-bottom: 1rem;
+        background-color: var(--card-bg);
+        border-radius: 8px;
+        overflow: hidden;
     }
 
     .table th {
-        background: var(--card-bg);
+        background-color: var(--card-bg);
         color: var(--text-color);
         font-weight: 600;
-        text-transform: uppercase;
-        font-size: 0.8rem;
         padding: 1rem;
+        border-bottom: 2px solid var(--panel-border);
     }
 
     .table td {
         padding: 1rem;
         vertical-align: middle;
         color: var(--text-color);
+        border-bottom: 1px solid var(--panel-border);
+    }
+
+    .table tbody tr {
+        background-color: var(--card-bg);
+        transition: background-color 0.3s ease;
+    }
+
+    .table tbody tr:nth-child(even) {
+        background-color: rgba(128, 128, 128, 0.05);
+    }
+
+    .table tbody tr:hover {
+        background-color: rgba(128, 128, 128, 0.1);
     }
 
     .status-badge {
-        padding: 0.25rem 0.75rem;
-        border-radius: 20px;
-        font-size: 0.8rem;
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        font-size: 1rem;
         font-weight: 500;
     }
 
@@ -426,15 +502,33 @@
 
     .action-buttons {
         display: flex;
-        gap: 0.5rem;
+        gap: 1rem;
     }
 
-    .action-buttons .btn-sm {
-        padding: 0.25rem 0.5rem;
-        font-size: 0.8rem;
+    .action-buttons .btn {
+        padding: 0.5rem 1rem;
+        font-size: 1.1rem;
     }
 
     /* Responsive Design */
+    @media (max-width: 1400px) {
+        .stats-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @media (max-width: 1200px) {
+        .action-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 992px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
     @media (max-width: 768px) {
         .admin-dashboard {
             padding: 1rem;
@@ -447,10 +541,6 @@
         }
 
         .stats-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .action-grid {
             grid-template-columns: 1fr;
         }
 
