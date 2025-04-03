@@ -16,18 +16,85 @@ def dashboard():
     if current_user.has_role('admin'):
         # Get stats for admin dashboard
         stats = {
-            'students': User.query.filter(User.roles.any(name='student')).count(),
+            'total_users': User.query.count(),
+            'total_students': User.query.filter(User.roles.any(name='student')).count(),
+            'total_staff': User.query.filter(User.roles.any(name='staff')).count(),
             'total_results': Result.query.count(),
+            'total_departments': Department.query.count(),
+            'pending_approvals': User.query.filter_by(is_approved=False).count(),
+            'recent_users': User.query.order_by(User.created_at.desc()).limit(5).all(),
             'recent_results': Result.query.order_by(Result.declaration_date.desc()).limit(5).all()
         }
         return render_template('dashboard/admin.html', stats=stats)
+    
+    elif current_user.has_role('hod'):
+        # Get stats for HOD dashboard
+        dept_students = User.query.filter(
+            User.roles.any(name='student'),
+            User.department_id == current_user.department_id
+        )
+        dept_staff = User.query.filter(
+            User.roles.any(name='staff'),
+            User.department_id == current_user.department_id
+        )
+        stats = {
+            'total_students': dept_students.count(),
+            'total_staff': dept_staff.count(),
+            'department': current_user.department,
+            'recent_results': Result.query.join(User).filter(
+                User.department_id == current_user.department_id
+            ).order_by(Result.declaration_date.desc()).limit(5).all()
+        }
+        return render_template('dashboard/hod.html', stats=stats)
+    
+    elif current_user.has_role('lecturer'):
+        # Get stats for lecturer dashboard
+        dept_students = User.query.filter(
+            User.roles.any(name='student'),
+            User.department_id == current_user.department_id
+        )
+        stats = {
+            'total_students': dept_students.count(),
+            'department': current_user.department,
+            'recent_results': Result.query.join(User).filter(
+                User.department_id == current_user.department_id
+            ).order_by(Result.declaration_date.desc()).limit(5).all()
+        }
+        return render_template('dashboard/lecturer.html', stats=stats)
+    
+    elif current_user.has_role('librarian'):
+        stats = {
+            'total_students': User.query.filter(User.roles.any(name='student')).count(),
+            'total_staff': User.query.filter(User.roles.any(name='staff')).count(),
+            'recent_users': User.query.order_by(User.created_at.desc()).limit(5).all()
+        }
+        return render_template('dashboard/librarian.html', stats=stats)
+    
+    elif current_user.has_role('lab_assistant'):
+        dept_students = User.query.filter(
+            User.roles.any(name='student'),
+            User.department_id == current_user.department_id
+        )
+        stats = {
+            'total_students': dept_students.count(),
+            'department': current_user.department
+        }
+        return render_template('dashboard/lab_assistant.html', stats=stats)
+    
+    elif current_user.has_role('store_officer'):
+        stats = {
+            'total_departments': Department.query.count(),
+            'departments': Department.query.all()
+        }
+        return render_template('dashboard/store_officer.html', stats=stats)
+    
     elif current_user.has_role('student'):
         # Get latest result for the student
         latest_result = Result.query.filter_by(
             student_id=current_user.id
         ).order_by(Result.declaration_date.desc()).first()
-        
         return render_template('dashboard/student.html', latest_result=latest_result)
+    
     else:
         return render_template('dashboard/default.html')
 

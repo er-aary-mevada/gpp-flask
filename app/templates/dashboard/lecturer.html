@@ -1,0 +1,451 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+<div class="lecturer-dashboard">
+    <!-- Welcome Banner -->
+    <div class="welcome-banner">
+        <div class="banner-content">
+            <div class="banner-text">
+                <h1>Welcome, {{ current_user.first_name }} {{ current_user.last_name }}</h1>
+                <p>{{ stats.department.name }} Department</p>
+            </div>
+            <div class="time-info">
+                <div class="current-time">
+                    <i class="fas fa-clock"></i>
+                    <span id="current-time">Loading...</span>
+                </div>
+                <div class="current-date">
+                    <i class="fas fa-calendar"></i>
+                    <span id="current-date">Loading...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="dashboard-grid">
+        <!-- Left Column -->
+        <div class="left-column">
+            <!-- Department Overview -->
+            <div class="overview-card">
+                <div class="card-header">
+                    <h2>Department Overview</h2>
+                </div>
+                <div class="card-body">
+                    <div class="overview-stats">
+                        <div class="stat-item">
+                            <div class="stat-icon students">
+                                <i class="fas fa-user-graduate"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>Total Students</h3>
+                                <p>{{ stats.total_students }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Results -->
+            <div class="results-card">
+                <div class="card-header">
+                    <h2>Recent Results</h2>
+                    <a href="{{ url_for('main.view_results') }}" class="btn btn-outline-primary btn-sm">
+                        View All
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if stats.recent_results %}
+                    <div class="results-list">
+                        {% for result in stats.recent_results %}
+                        <div class="result-item">
+                            <div class="result-info">
+                                <h4>{{ result.student.first_name }} {{ result.student.last_name }}</h4>
+                                <p>{{ result.exam_name }}</p>
+                            </div>
+                            <div class="result-meta">
+                                <span class="date">{{ result.declaration_date.strftime('%d %b %Y') }}</span>
+                                <span class="status {{ result.result_status.lower() }}">
+                                    {{ result.result_status }}
+                                </span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="no-data">
+                        <i class="fas fa-clipboard-list"></i>
+                        <p>No recent results available</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="right-column">
+            <!-- Quick Actions -->
+            <div class="actions-card">
+                <div class="card-header">
+                    <h2>Quick Actions</h2>
+                </div>
+                <div class="card-body">
+                    <div class="actions-grid">
+                        <a href="{{ url_for('main.upload_result') }}" class="action-item">
+                            <div class="action-icon">
+                                <i class="fas fa-upload"></i>
+                            </div>
+                            <h3>Upload Result</h3>
+                            <p>Add new student results</p>
+                        </a>
+                        <a href="{{ url_for('main.view_students') }}" class="action-item">
+                            <div class="action-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <h3>View Students</h3>
+                            <p>Manage student data</p>
+                        </a>
+                        <a href="{{ url_for('main.result_analysis') }}" class="action-item">
+                            <div class="action-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <h3>Analysis</h3>
+                            <p>View performance reports</p>
+                        </a>
+                        <a href="{{ url_for('main.notifications') }}" class="action-item">
+                            <div class="action-icon">
+                                <i class="fas fa-bell"></i>
+                            </div>
+                            <h3>Notifications</h3>
+                            <p>View system updates</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Schedule Card -->
+            <div class="schedule-card">
+                <div class="card-header">
+                    <h2>Today's Schedule</h2>
+                </div>
+                <div class="card-body">
+                    <div class="schedule-list">
+                        <div class="schedule-item">
+                            <div class="time">09:00 AM</div>
+                            <div class="event">Computer Networks (CE-5A)</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="time">11:00 AM</div>
+                            <div class="event">Database Systems (CE-3B)</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="time">02:00 PM</div>
+                            <div class="event">Project Guidance (CE-7)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.lecturer-dashboard {
+    padding: 1.5rem;
+    background: #f0f2f5;
+    min-height: 100vh;
+}
+
+.welcome-banner {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 15px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    color: white;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.banner-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.banner-text h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.banner-text p {
+    margin: 0.5rem 0 0;
+    opacity: 0.9;
+}
+
+.time-info {
+    text-align: right;
+}
+
+.current-time, .current-date {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0.5rem 0;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+}
+
+.overview-card, .results-card, .actions-card, .schedule-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+}
+
+.card-header {
+    padding: 1.25rem;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-header h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: #1a1a1a;
+}
+
+.card-body {
+    padding: 1.25rem;
+}
+
+.overview-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 10px;
+}
+
+.stat-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    font-size: 1.5rem;
+}
+
+.stat-icon.students {
+    background: rgba(99,102,241,0.1);
+    color: #6366f1;
+}
+
+.stat-info h3 {
+    margin: 0;
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.stat-info p {
+    margin: 0.25rem 0 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.results-list {
+    display: grid;
+    gap: 1rem;
+}
+
+.result-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 10px;
+}
+
+.result-info h4 {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #1a1a1a;
+}
+
+.result-info p {
+    margin: 0.25rem 0 0;
+    font-size: 0.8rem;
+    color: #6b7280;
+}
+
+.result-meta {
+    text-align: right;
+}
+
+.date {
+    display: block;
+    font-size: 0.8rem;
+    color: #6b7280;
+}
+
+.status {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin-top: 0.5rem;
+}
+
+.status.pass {
+    background: rgba(16,185,129,0.1);
+    color: #10b981;
+}
+
+.status.fail {
+    background: rgba(239,68,68,0.1);
+    color: #ef4444;
+}
+
+.actions-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.action-item {
+    padding: 1.25rem;
+    background: #f8fafc;
+    border-radius: 10px;
+    text-align: center;
+    text-decoration: none;
+    color: #1a1a1a;
+    transition: all 0.3s ease;
+}
+
+.action-item:hover {
+    transform: translateY(-2px);
+    background: #f1f5f9;
+}
+
+.action-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    font-size: 1.25rem;
+    color: #6366f1;
+    box-shadow: 0 2px 4px rgba(99,102,241,0.1);
+}
+
+.action-item h3 {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.action-item p {
+    margin: 0.25rem 0 0;
+    font-size: 0.8rem;
+    color: #6b7280;
+}
+
+.schedule-list {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.schedule-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    background: #f8fafc;
+    border-radius: 8px;
+}
+
+.time {
+    min-width: 80px;
+    font-size: 0.8rem;
+    color: #6b7280;
+}
+
+.event {
+    font-size: 0.9rem;
+    color: #1a1a1a;
+}
+
+.no-data {
+    text-align: center;
+    padding: 2rem;
+    color: #6b7280;
+}
+
+.no-data i {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+@media (max-width: 1024px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .banner-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .time-info {
+        margin-top: 1rem;
+        text-align: center;
+    }
+}
+
+@media (max-width: 640px) {
+    .actions-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .result-item {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .result-meta {
+        margin-top: 0.5rem;
+        text-align: center;
+    }
+}
+</style>
+
+<script>
+function updateTime() {
+    const now = new Date();
+    document.getElementById('current-time').textContent = now.toLocaleTimeString();
+    document.getElementById('current-date').textContent = now.toLocaleDateString();
+}
+
+// Update time every second
+setInterval(updateTime, 1000);
+updateTime(); // Initial update
+</script>
+{% endblock %}
