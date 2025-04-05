@@ -1,15 +1,37 @@
 from ..extensions import db
-from datetime import datetime
+from datetime import datetime, date
+from sqlalchemy import types
+from .user import User
 
 class Result(db.Model):
     __tablename__ = 'results'
     
     id = db.Column(db.Integer, primary_key=True)
     student_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
+    student = db.relationship('User', backref=db.backref('results', lazy='dynamic'))
     exam_id = db.Column(db.String(20))
     exam_type = db.Column(db.String(20))
     exam_name = db.Column(db.String(100))
-    declaration_date = db.Column(db.DateTime)
+    class DateType(types.TypeDecorator):
+        impl = types.String
+        cache_ok = True
+
+        def process_bind_param(self, value, dialect):
+            if value is None:
+                return None
+            if isinstance(value, (date, datetime)):
+                return value.strftime('%Y-%m-%d')
+            return value
+
+        def process_result_value(self, value, dialect):
+            if value is None:
+                return None
+            try:
+                return datetime.strptime(value, '%Y-%m-%d').date()
+            except (ValueError, TypeError):
+                return None
+
+    declaration_date = db.Column(DateType)
     academic_year = db.Column(db.String(20))
     semester = db.Column(db.Integer)
     institute_code = db.Column(db.String(20))

@@ -173,7 +173,7 @@ def create_user():
                 created_at=datetime.utcnow()
             )
             
-            for role_name in form.roles.data:
+            for role_name in form.default_roles.data:
                 role = Role.query.filter_by(name=role_name).first()
                 if role:
                     user.roles.append(role)
@@ -199,11 +199,13 @@ def bulk_upload():
     form = BulkUserUploadForm()
     if form.validate_on_submit():
         try:
-            df = pd.read_csv(request.files[form.file.name])
+            print(f"Processing file upload with roles: {form.default_roles.data}")
+            df = pd.read_csv(request.files[form.csv_file.name])
+            print(f"CSV columns: {df.columns.tolist()}")
             
             # Get or create selected roles
             user_roles = []
-            for role_name in form.roles.data:
+            for role_name in form.default_roles.data:
                 role = Role.query.filter_by(name=role_name).first()
                 if not role:
                     role = Role(name=role_name)
@@ -269,6 +271,7 @@ def bulk_upload():
             return redirect(url_for('admin.index'))
             
         except Exception as e:
+            print(f"Error processing file: {str(e)}")
             flash(f'Error processing file: {str(e)}', 'error')
             return redirect(url_for('admin.index'))
     
@@ -476,7 +479,12 @@ def upload_results():
                     result.exam_id = row['examid']
                     result.exam_type = row['extype']
                     result.exam_name = row['exam']
-                    result.declaration_date = pd.to_datetime(row['DECLARATIONDATE']).date()
+                    # Parse declaration date with the correct format
+                    try:
+                        result.declaration_date = pd.to_datetime(row['DECLARATIONDATE'], format='%m/%d/%Y %I:%M:%S %p').date()
+                    except Exception as e:
+                        print(f"Error parsing date {row['DECLARATIONDATE']}: {str(e)}")
+                        result.declaration_date = None
                     result.academic_year = row['AcademicYear']
                     result.semester = int(row['sem'])
                     result.student_name = row['name']

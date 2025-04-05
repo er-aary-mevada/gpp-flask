@@ -50,17 +50,7 @@ def login():
     
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
-        if user is None or not verify_password(form.password.data, user.password):
-            flash('Invalid email or password', 'error')
-            return redirect(url_for('auth.login'))
-        if not user.is_approved and not user.has_role('admin'):
-            flash('Your account is pending approval.', 'error')
-            return redirect(url_for('auth.login'))
-        if not user.has_role(form.role.data):
-            flash('You do not have permission to login with this role.', 'error')
-            return redirect(url_for('auth.login'))
-        login_user(user, remember=form.remember.data)
+        login_user(form.user, remember=form.remember.data)
         next_page = request.args.get('next')
         if not next_page or urlparse(next_page).netloc != '':
             next_page = url_for('dashboard.index')

@@ -104,7 +104,7 @@ def create_sample_projects():
         # Sample projects
         projects = [
             {
-                'name': 'Smart Library Management System',
+                'title': 'Smart Library Management System',
                 'description': 'Developing a digital library management system with RFID integration for efficient book tracking and management.',
                 'department_id': dept.id,
                 'group_leader': 'Raj Patel',
@@ -130,7 +130,7 @@ def create_sample_projects():
                 'submission_timestamp': datetime.now()
             },
             {
-                'name': 'Student Attendance App',
+                'title': 'Student Attendance App',
                 'description': 'Mobile application for tracking student attendance using biometric authentication.',
                 'department_id': dept.id,
                 'group_leader': 'Kunal Shah',
@@ -143,7 +143,7 @@ def create_sample_projects():
                 'submission_timestamp': datetime.now()
             },
             {
-                'name': 'College Event Portal',
+                'title': 'College Event Portal',
                 'description': 'Web portal for managing college events, registrations, and generating attendance certificates.',
                 'department_id': dept.id,
                 'group_leader': 'Anita Desai',
@@ -156,7 +156,7 @@ def create_sample_projects():
                 'submission_timestamp': datetime.now()
             },
             {
-                'name': 'Lab Equipment Tracker',
+                'title': 'Lab Equipment Tracker',
                 'description': 'System to track and manage laboratory equipment, maintenance schedules, and usage logs.',
                 'department_id': dept.id,
                 'group_leader': 'Vikram Mehta',
@@ -172,11 +172,11 @@ def create_sample_projects():
 
         # Add projects to database
         for project_data in projects:
-            project = Project.query.filter_by(name=project_data['name']).first()
+            project = Project.query.filter_by(title=project_data['title']).first()
             if not project:
                 project = Project(**project_data)
                 db.session.add(project)
-                print(f"Added project: {project_data['name']}")
+                print(f"Added project: {project_data['title']}")
         
         db.session.commit()
         print("Sample projects created successfully!")
