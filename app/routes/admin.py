@@ -139,21 +139,27 @@ def delete_department(dept_id):
 @bp.route('/users', methods=['GET'])
 @roles_required('admin')
 def users():
+    # Get all users
+    users = User.query.order_by(User.created_at.desc()).all()
+    
     # Get role counts for the stats cards
     role_counts = {}
-    for role in Role.query.all():
+    roles = Role.query.all()
+    for role in roles:
         role_counts[role.name] = User.query.join(User.roles).filter(Role.name == role.name).count()
-
-    # Get recent users for the table
-    recent_users = User.query.order_by(User.created_at.desc()).limit(10).all()
+    
+    # Get all departments for filtering
+    departments = Department.query.all()
     
     # Create form instance for the modal
     form = UserCreationForm()
 
     return render_template('admin/users.html', 
+                         users=users,
+                         roles=roles,
+                         departments=departments,
                          form=form,
-                         role_counts=role_counts,
-                         recent_users=recent_users)
+                         role_counts=role_counts)
 
 @bp.route('/users/create', methods=['GET', 'POST'])
 @roles_required('admin')
@@ -173,7 +179,7 @@ def create_user():
                 created_at=datetime.utcnow()
             )
             
-            for role_name in form.default_roles.data:
+            for role_name in form.roles.data:
                 role = Role.query.filter_by(name=role_name).first()
                 if role:
                     user.roles.append(role)
@@ -402,6 +408,11 @@ def edit_user(user_id):
     form = UserCreationForm(obj=user)
     
     if request.method == 'GET':
+        # Set initial form data
+        form.email.data = user.email
+        form.first_name.data = user.first_name
+        form.last_name.data = user.last_name
+        form.phone.data = user.phone
         form.department.data = user.department_id if user.department else 0
         form.roles.data = [role.name for role in user.roles]
     

@@ -102,26 +102,14 @@ def create_sample_projects():
             return False
 
         # Sample projects
-        projects = [
+        sample_projects = [
             {
                 'title': 'Smart Library Management System',
                 'description': 'Developing a digital library management system with RFID integration for efficient book tracking and management.',
                 'department_id': dept.id,
                 'group_leader': 'Raj Patel',
                 'members': 'Raj Patel, Priya Shah, Amit Kumar, Neha Singh',
-                'marks': None,
-                'presentation_type': 'Demo Model',
-                'semester': '6th Sem',
-                'faculty_mentor': 'Dr. Mehta',
-                'mobile_number': '9876543210',
-                'submission_timestamp': datetime.now()
-            },
-            {
-                'name': 'IoT Weather Station',
-                'description': 'Building a weather monitoring station using IoT sensors to collect and analyze environmental data.',
-                'department_id': dept.id,
-                'group_leader': 'Meera Desai',
-                'members': 'Meera Desai, Jay Mehta, Ravi Sharma, Anjali Patel',
+                'status': 'pending',
                 'marks': None,
                 'presentation_type': 'Demo Model',
                 'semester': '6th Sem',
@@ -135,6 +123,7 @@ def create_sample_projects():
                 'department_id': dept.id,
                 'group_leader': 'Kunal Shah',
                 'members': 'Kunal Shah, Pooja Patel, Rohan Joshi, Sneha Kumar',
+                'status': 'pending',
                 'marks': None,
                 'presentation_type': 'Demo Model',
                 'semester': '6th Sem',
@@ -148,6 +137,7 @@ def create_sample_projects():
                 'department_id': dept.id,
                 'group_leader': 'Anita Desai',
                 'members': 'Anita Desai, Rahul Patel, Kiran Shah, Maya Singh',
+                'status': 'pending',
                 'marks': None,
                 'presentation_type': 'Demo Model',
                 'semester': '6th Sem',
@@ -161,6 +151,7 @@ def create_sample_projects():
                 'department_id': dept.id,
                 'group_leader': 'Vikram Mehta',
                 'members': 'Vikram Mehta, Nisha Patel, Arun Kumar, Divya Shah',
+                'status': 'pending',
                 'marks': None,
                 'presentation_type': 'Demo Model',
                 'semester': '6th Sem',
@@ -171,7 +162,7 @@ def create_sample_projects():
         ]
 
         # Add projects to database
-        for project_data in projects:
+        for project_data in sample_projects:
             project = Project.query.filter_by(title=project_data['title']).first()
             if not project:
                 project = Project(**project_data)

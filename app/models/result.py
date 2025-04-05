@@ -3,6 +3,25 @@ from datetime import datetime, date
 from sqlalchemy import types
 from .user import User
 
+class DateType(types.TypeDecorator):
+    impl = types.String
+    cache_ok = True
+
+    def process_bind_param(self, value, dialect):
+        if value is None:
+            return None
+        if isinstance(value, (date, datetime)):
+            return value.strftime('%Y-%m-%d')
+        return value
+
+    def process_result_value(self, value, dialect):
+        if value is None:
+            return None
+        try:
+            return datetime.strptime(value, '%Y-%m-%d').date()
+        except (ValueError, TypeError):
+            return None
+
 class Result(db.Model):
     __tablename__ = 'results'
     
@@ -12,25 +31,6 @@ class Result(db.Model):
     exam_id = db.Column(db.String(20))
     exam_type = db.Column(db.String(20))
     exam_name = db.Column(db.String(100))
-    class DateType(types.TypeDecorator):
-        impl = types.String
-        cache_ok = True
-
-        def process_bind_param(self, value, dialect):
-            if value is None:
-                return None
-            if isinstance(value, (date, datetime)):
-                return value.strftime('%Y-%m-%d')
-            return value
-
-        def process_result_value(self, value, dialect):
-            if value is None:
-                return None
-            try:
-                return datetime.strptime(value, '%Y-%m-%d').date()
-            except (ValueError, TypeError):
-                return None
-
     declaration_date = db.Column(DateType)
     academic_year = db.Column(db.String(20))
     semester = db.Column(db.Integer)
