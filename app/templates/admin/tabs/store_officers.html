@@ -35,7 +35,7 @@
             </tr>
         </thead>
         <tbody>
-            {% for user in users if 'store_officer' in user.roles|map(attribute='name') %}
+            {% for user in store_officers %}
             <tr>
                 <td>{{ user.id }}</td>
                 <td>{{ user.first_name }} {{ user.last_name }}</td>
