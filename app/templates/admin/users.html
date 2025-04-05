@@ -561,7 +561,8 @@ User Management
             </div>
             <div class="modal-footer">
                 <form id="deleteForm" method="POST">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-danger">
                         <i class="fas fa-trash me-2"></i>Delete
                     </button>
@@ -669,8 +670,7 @@ function confirmDelete(userId, userEmail) {
     if (deleteUserEmail && deleteForm) {
         deleteUserEmail.textContent = userEmail;
         deleteForm.action = `/admin/delete_user/${userId}`;
-        const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
-        modal.show();
+        $('#deleteModal').modal('show');
     }
 }
 </script>
