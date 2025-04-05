@@ -49,6 +49,7 @@ class SSIPSubmission(db.Model):
     
     # Relationships
     department = db.relationship('Department', backref=db.backref('ssip_submissions', lazy=True))
+    workflow = db.relationship('SSIPWorkflow', back_populates='submission', uselist=False)
     
     def __repr__(self):
         return f'<SSIPSubmission {self.project_title}>'
