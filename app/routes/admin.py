@@ -179,7 +179,7 @@ def create_user():
                 created_at=datetime.utcnow()
             )
             
-            for role_name in form.default_roles.data:
+            for role_name in form.roles.data:
                 role = Role.query.filter_by(name=role_name).first()
                 if role:
                     user.roles.append(role)
