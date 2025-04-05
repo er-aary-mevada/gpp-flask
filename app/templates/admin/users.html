@@ -426,7 +426,7 @@ User Management
                 <h5 class="modal-title">
                     <i class="fas fa-user-plus me-2"></i>Create New User
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <form method="POST" action="{{ url_for('admin.create_user') }}" class="needs-validation" novalidate>
                 <div class="modal-body">
@@ -507,7 +507,7 @@ User Management
                 <h5 class="modal-title">
                     <i class="fas fa-user me-2"></i>User Details
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="row g-3">
@@ -539,7 +539,7 @@ User Management
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-primary" onclick="editUser(currentUserId)">Edit User</button>
             </div>
         </div>
@@ -554,7 +554,7 @@ User Management
                 <h5 class="modal-title">
                     <i class="fas fa-exclamation-triangle text-danger me-2"></i>Confirm Delete
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
                 <p class="mb-0">Are you sure you want to delete user <strong id="deleteUserEmail"></strong>? This action cannot be undone.</p>
@@ -630,16 +630,14 @@ function filterTable() {
 function viewUser(userId) {
     currentUserId = userId;
     const row = $(`tr[data-user-id="${userId}"]`);
-    const modal = new bootstrap.Modal(document.getElementById('userDetailsModal'));
-
     // Populate modal with user data
-    $('#modalUserName').text(row.find('td:eq(0)').find('.fw-bold').text());
-    $('#modalUserEmail').text(row.find('td:eq(1)').text());
-    $('#modalUserDepartment').text(row.find('td:eq(2)').text());
-    $('#modalUserStatus').html(row.find('td:eq(4)').html());
-    $('#modalUserRoles').html(row.find('td:eq(3)').html());
+    $('#modalUserName').text(row.find('.user-details span:first').text());
+    $('#modalUserEmail').text(row.find('.email-cell').text());
+    $('#modalUserDepartment').text(row.find('.department-cell').text());
+    $('#modalUserStatus').html(row.find('.status-cell').html());
+    $('#modalUserRoles').html(row.find('.role-cell').html());
 
-    modal.show();
+    $('#userDetailsModal').modal('show');
 }
 
 // Edit user

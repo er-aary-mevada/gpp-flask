@@ -72,11 +72,11 @@
                     </div>
 
                     <div class="form-group">
-                        {{ form.role.label }}
-                        {{ form.role(class="form-control") }}
-                        {% if form.role.errors %}
+                        {{ form.roles.label }}
+                        {{ form.roles(class="form-control", multiple=true) }}
+                        {% if form.roles.errors %}
                             <ul class="text-danger">
-                            {% for error in form.role.errors %}
+                            {% for error in form.roles.errors %}
                                 <li>{{ error }}</li>
                             {% endfor %}
                             </ul>

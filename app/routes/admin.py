@@ -408,6 +408,11 @@ def edit_user(user_id):
     form = UserCreationForm(obj=user)
     
     if request.method == 'GET':
+        # Set initial form data
+        form.email.data = user.email
+        form.first_name.data = user.first_name
+        form.last_name.data = user.last_name
+        form.phone.data = user.phone
         form.department.data = user.department_id if user.department else 0
         form.roles.data = [role.name for role in user.roles]
     
