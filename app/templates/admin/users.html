@@ -121,51 +121,81 @@ User Management
     }
     .stat-panel {
         margin: 0 10px 15px;
-        border-radius: 8px;
-        border: 1px solid var(--panel-border);
+        border-radius: 12px;
         background: var(--panel-bg);
-        transition: transform 0.2s;
+        transition: all 0.3s ease;
         height: 100%;
+        position: relative;
+        overflow: hidden;
+        border: none;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
     .stat-panel:hover {
         transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
     .stat-box {
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        padding: 5px;
+        padding: 15px;
+        position: relative;
+        z-index: 1;
     }
     .stat-content {
         flex-grow: 1;
+        position: relative;
     }
     .stat-label {
         color: var(--text-color);
-        font-size: 13px;
-        font-weight: 600;
+        font-size: 12px;
+        font-weight: 500;
         text-transform: uppercase;
-        opacity: 0.8;
-        margin-bottom: 5px;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
         white-space: nowrap;
     }
     .stat-value {
-        font-size: 24px;
-        font-weight: 600;
+        font-size: 28px;
+        font-weight: 700;
         color: var(--text-color);
+        line-height: 1;
+        margin-bottom: 4px;
     }
     .stat-icon {
-        width: 40px;
-        height: 40px;
+        width: 48px;
+        height: 48px;
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 8px;
-        background: var(--btn-primary);
+        border-radius: 12px;
+        background: linear-gradient(135deg, var(--btn-primary), #2563eb);
         color: #fff;
-        margin-left: 10px;
+        margin-left: 15px;
+        position: relative;
+        overflow: hidden;
+    }
+    .stat-icon::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 100%);
     }
     .stat-icon i {
-        font-size: 18px;
+        font-size: 20px;
+        position: relative;
+        z-index: 1;
+    }
+    .stat-panel::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--btn-primary), #2563eb);
     }
     .btn-group-sm > .btn {
         padding: 3px 6px;
@@ -245,14 +275,25 @@ User Management
         {% for role, count in role_counts.items() %}
         <div class="col-lg-2 col-md-3 col-sm-4 col-xs-6">
             <div class="panel panel-default stat-panel">
-                <div class="panel-body">
+                <div class="panel-body" style="padding: 0;">
                     <div class="stat-box">
                         <div class="stat-content">
                             <div class="stat-label">{{ role|replace('_', ' ')|title }}s</div>
                             <div class="stat-value">{{ count }}</div>
                         </div>
                         <div class="stat-icon">
-                            <i class="fas fa-users"></i>
+                            {% set icon = {
+                                'admin': 'fa-shield-alt',
+                                'user': 'fa-user',
+                                'lecturer': 'fa-chalkboard-teacher',
+                                'hod': 'fa-user-tie',
+                                'librarian': 'fa-book-reader',
+                                'lab_assistant': 'fa-flask',
+                                'store_officer': 'fa-warehouse',
+                                'student': 'fa-user-graduate'
+                            } %}
+                            {% set role_key = role|lower %}
+                            <i class="fas {{ icon[role_key]|default('fa-users') }}"></i>
                         </div>
                     </div>
                 </div>
