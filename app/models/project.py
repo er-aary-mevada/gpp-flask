@@ -5,11 +5,14 @@ class Project(db.Model):
     __tablename__ = 'projects'
     
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(200), nullable=False)
+    title = db.Column(db.String(200), nullable=False)  # Changed from name to title for SSIP
     description = db.Column(db.Text)
     department_id = db.Column(db.Integer, db.ForeignKey('departments.id', name='fk_project_department'))
-    group_leader = db.Column(db.String(100), nullable=False)
-    members = db.Column(db.Text, nullable=False)  # Comma-separated list of members
+    student_id = db.Column(db.Integer, db.ForeignKey('user.id', name='fk_project_student'))
+    status = db.Column(db.String(20), default='pending')  # pending, approved, rejected
+    feedback = db.Column(db.Text)  # Feedback from reviewers
+    group_leader = db.Column(db.String(100))  # Made nullable for SSIP individual projects
+    members = db.Column(db.Text)  # Made nullable for SSIP individual projects
     marks = db.Column(db.Integer)  # Out of 100
     presentation_type = db.Column(db.String(50))  # Model/Poster
     semester = db.Column(db.String(20))
@@ -21,9 +24,10 @@ class Project(db.Model):
 
     # Relationships
     department = db.relationship('Department', backref=db.backref('projects', lazy=True))
+    student = db.relationship('User', backref=db.backref('projects', lazy=True))
 
     def __repr__(self):
-        return f'<Project {self.name}>'
+        return f'<Project {self.title}>'
 
     @staticmethod
     def import_from_csv(file_path):
@@ -73,7 +77,7 @@ class Project(db.Model):
             timestamp = datetime.strptime(row['Timestamp'], '%m/%d/%Y %H:%M:%S')
             
             project = Project(
-                name=row['Project Title'].strip(),
+                title=row['Project Title'].strip(),
                 description=row['Write about your Idea/project '].strip(),  
                 department_id=dept.id,
                 group_leader=row['First team member name  (for certificate printing)'].strip(),
@@ -83,7 +87,8 @@ class Project(db.Model):
                 faculty_mentor=row['Faculty Mentor Name'].strip(),
                 mobile_number=str(row['Mobile number any one team member']),
                 submission_timestamp=timestamp,
-                marks=None
+                marks=None,
+                status='pending'
             )
             projects.append(project)
         

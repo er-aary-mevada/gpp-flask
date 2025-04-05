@@ -21,13 +21,13 @@
                                 </div>
                                 <div class="card-body">
                                     <div class="list-group">
-                                        <a href="#" class="list-group-item list-group-item-action">
+                                        <a href="{{ url_for('ssip.submit_idea') }}" class="list-group-item list-group-item-action">
                                             <i class="fas fa-plus"></i> Submit New Idea
                                         </a>
-                                        <a href="#" class="list-group-item list-group-item-action">
+                                        <a href="{{ url_for('ssip.my_projects') }}" class="list-group-item list-group-item-action">
                                             <i class="fas fa-tasks"></i> My Projects
                                         </a>
-                                        <a href="#" class="list-group-item list-group-item-action">
+                                        <a href="{{ url_for('ssip.guidelines') }}" class="list-group-item list-group-item-action">
                                             <i class="fas fa-book"></i> SSIP Guidelines
                                         </a>
                                     </div>
