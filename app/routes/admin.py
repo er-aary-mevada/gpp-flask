@@ -476,7 +476,12 @@ def upload_results():
                     result.exam_id = row['examid']
                     result.exam_type = row['extype']
                     result.exam_name = row['exam']
-                    result.declaration_date = pd.to_datetime(row['DECLARATIONDATE']).date()
+                    # Parse declaration date with the correct format
+                    try:
+                        result.declaration_date = pd.to_datetime(row['DECLARATIONDATE'], format='%m/%d/%Y %I:%M:%S %p').date()
+                    except Exception as e:
+                        print(f"Error parsing date {row['DECLARATIONDATE']}: {str(e)}")
+                        result.declaration_date = None
                     result.academic_year = row['AcademicYear']
                     result.semester = int(row['sem'])
                     result.student_name = row['name']
