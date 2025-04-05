@@ -151,7 +151,7 @@ def users():
     # Get all departments for filtering
     departments = Department.query.all()
     
-    # Create form instance for the modal
+    # Get form for CSRF token
     form = UserCreationForm()
 
     return render_template('admin/users.html', 
@@ -161,43 +161,61 @@ def users():
                          form=form,
                          role_counts=role_counts)
 
-@bp.route('/users/create', methods=['GET', 'POST'])
+@bp.route('/users/create', methods=['POST'])
 @roles_required('admin')
 def create_user():
-    form = UserCreationForm()
+    form = UserCreationForm(request.form)
     
-    if form.validate_on_submit():
+    if form.validate():
         try:
+            # Check if email already exists (case-insensitive)
+            existing_user = User.query.filter(User.email.ilike(form.email.data)).first()
+            if existing_user:
+                return jsonify({'email': ['This email address is already registered']}), 400
+
+            # Create new user
             user = User(
-                email=form.email.data,
+                email=form.email.data.lower(),  # Store email in lowercase
                 first_name=form.first_name.data,
                 last_name=form.last_name.data,
                 phone=form.phone.data,
-                department_id=form.department.data,
+                department_id=int(form.department.data),
                 password=hash_password('changeme123'),
                 is_approved=True,
                 created_at=datetime.utcnow()
             )
             
-            for role_name in form.roles.data:
+            # Get selected roles
+            role_names = request.form.getlist('roles')
+            if not role_names:
+                return jsonify({'roles': ['Please select at least one role']}), 400
+                
+            for role_name in role_names:
                 role = Role.query.filter_by(name=role_name).first()
                 if role:
                     user.roles.append(role)
+                else:
+                    return jsonify({'roles': ['Invalid role selected']}), 400
             
             db.session.add(user)
             db.session.commit()
-            flash('User created successfully! Temporary password: changeme123', 'success')
+            return jsonify({
+                'status': 'success', 
+                'message': 'User created successfully! Temporary password: changeme123'
+            })
+            
         except Exception as e:
             db.session.rollback()
-            flash('Error creating user. Please try again.', 'error')
             current_app.logger.error(f'Error creating user: {str(e)}')
-        
-        return redirect(url_for('admin.users'))
+            if 'UNIQUE constraint' in str(e) and 'email' in str(e):
+                return jsonify({'email': ['This email address is already registered']}), 400
+            return jsonify({'error': 'An error occurred while creating the user'}), 500
     
-    if form.errors:
-        flash('Please correct the errors below.', 'error')
-    
-    return render_template('admin/create_user.html', form=form)
+    # Format validation errors
+    errors = {}
+    for field, field_errors in form.errors.items():
+        errors[field] = field_errors
+    return jsonify(errors), 400
 
 @bp.route('/bulk_upload', methods=['GET', 'POST'])
 @roles_required('admin')
