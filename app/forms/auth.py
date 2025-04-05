@@ -57,7 +57,7 @@ class LoginForm(BaseLoginForm):
         self.requires_confirmation = False
         self.user = None
 
-    def validate(self):
+    def validate(self, extra_validators=None):
         # First run Flask-Security's validation
         if not super(LoginForm, self).validate():
             return False
