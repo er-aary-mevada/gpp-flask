@@ -21,8 +21,10 @@ def create_app(config_class=Config):
     migrate.init_app(app, db)
 
     # Setup Flask-Security
+    from .forms.auth import LoginForm
     user_datastore = SQLAlchemyUserDatastore(db, User, Role)
-    security.init_app(app, user_datastore)
+    security.init_app(app, user_datastore,
+                     login_form=LoginForm)
 
     # Register blueprints
     from .routes.main import bp as main_bp

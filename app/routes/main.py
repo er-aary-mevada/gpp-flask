@@ -18,7 +18,7 @@ def dashboard():
         stats = {
             'students': User.query.filter(User.roles.any(name='student')).count(),
             'total_results': Result.query.count(),
-            'recent_results': Result.query.order_by(Result.declaration_date.desc()).limit(5).all()
+            'recent_results': Result.query.join(Result.student).order_by(Result.declaration_date.desc()).limit(5).all()
         }
         return render_template('dashboard/admin.html', stats=stats)
     elif current_user.has_role('student'):
