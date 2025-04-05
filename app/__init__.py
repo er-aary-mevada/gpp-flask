@@ -33,12 +33,14 @@ def create_app(config_class=Config):
     from .routes.dashboard import bp as dashboard_bp
     from .routes.student import bp as student_bp
     from .routes.ssip import bp as ssip_bp
+    from .routes.ssip_coordinator import bp as ssip_coordinator_bp
     
-    app.register_blueprint(main_bp)  # Root routes
+    app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(student_bp, url_prefix='/student')
     app.register_blueprint(ssip_bp, url_prefix='/ssip')
+    app.register_blueprint(ssip_coordinator_bp, url_prefix='/ssip-coordinator')
 
     return app

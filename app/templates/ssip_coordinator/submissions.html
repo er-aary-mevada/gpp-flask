@@ -5,11 +5,15 @@
     <div class="row">
         <div class="col-md-12">
             <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h3><i class="fas fa-tasks"></i> My SSIP Projects</h3>
-                    <a href="{{ url_for('ssip.submit_idea') }}" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Submit New Project
-                    </a>
+                <div class="card-header">
+                    <h3>
+                        <i class="fas fa-tasks"></i>
+                        {% if is_dept_coordinator %}
+                            Department SSIP Submissions
+                        {% else %}
+                            All SSIP Submissions
+                        {% endif %}
+                    </h3>
                 </div>
                 <div class="card-body">
                     {% if submissions %}
@@ -18,6 +22,8 @@
                                 <thead>
                                     <tr>
                                         <th>Project Title</th>
+                                        <th>Student Name</th>
+                                        <th>Department</th>
                                         <th>Category</th>
                                         <th>Stage</th>
                                         <th>Status</th>
@@ -29,6 +35,8 @@
                                     {% for submission in submissions %}
                                     <tr>
                                         <td>{{ submission.project_title }}</td>
+                                        <td>{{ submission.student_name }}</td>
+                                        <td>{{ submission.department.name }}</td>
                                         <td>{{ submission.project_category }}</td>
                                         <td>{{ submission.current_stage }}</td>
                                         <td>
@@ -39,14 +47,9 @@
                                         <td>{{ submission.created_at.strftime('%Y-%m-%d') }}</td>
                                         <td>
                                             <div class="btn-group">
-                                                <a href="#" class="btn btn-sm btn-info" title="View Details">
+                                                <a href="{{ url_for('ssip_coordinator.view_submission', id=submission.id) }}" class="btn btn-sm btn-info" title="View Details">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
-                                                {% if submission.status == 'pending' %}
-                                                <a href="#" class="btn btn-sm btn-warning" title="Edit">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                                {% endif %}
                                             </div>
                                         </td>
                                     </tr>
@@ -56,7 +59,7 @@
                         </div>
                     {% else %}
                         <div class="alert alert-info">
-                            <p>You haven't submitted any SSIP project proposals yet. Click the button above to submit your first project!</p>
+                            <p>No SSIP submissions found.</p>
                         </div>
                     {% endif %}
                 </div>

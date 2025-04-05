@@ -50,7 +50,7 @@
             <div class="results-card">
                 <div class="card-header">
                     <h2>Recent Results</h2>
-                    <a href="{{ url_for('main.view_results') }}" class="btn btn-outline-primary btn-sm">
+                    <a href="{{ url_for('admin.view_results') }}" class="btn btn-outline-primary btn-sm">
                         View All
                     </a>
                 </div>
@@ -91,34 +91,28 @@
                 </div>
                 <div class="card-body">
                     <div class="actions-grid">
-                        <a href="{{ url_for('main.upload_result') }}" class="action-item">
+                        <a href="{{ url_for('admin.upload_results') }}" class="action-item">
                             <div class="action-icon">
                                 <i class="fas fa-upload"></i>
                             </div>
                             <h3>Upload Result</h3>
                             <p>Add new student results</p>
                         </a>
-                        <a href="{{ url_for('main.view_students') }}" class="action-item">
+                        <a href="{{ url_for('admin.users') }}" class="action-item">
                             <div class="action-icon">
                                 <i class="fas fa-users"></i>
                             </div>
                             <h3>View Students</h3>
                             <p>Manage student data</p>
                         </a>
-                        <a href="{{ url_for('main.result_analysis') }}" class="action-item">
+                        <a href="{{ url_for('admin.view_results') }}" class="action-item">
                             <div class="action-icon">
-                                <i class="fas fa-chart-line"></i>
+                                <i class="fas fa-chart-bar"></i>
                             </div>
-                            <h3>Analysis</h3>
-                            <p>View performance reports</p>
+                            <h3>Results</h3>
+                            <p>View all results</p>
                         </a>
-                        <a href="{{ url_for('main.notifications') }}" class="action-item">
-                            <div class="action-icon">
-                                <i class="fas fa-bell"></i>
-                            </div>
-                            <h3>Notifications</h3>
-                            <p>View system updates</p>
-                        </a>
+
                     </div>
                 </div>
             </div>

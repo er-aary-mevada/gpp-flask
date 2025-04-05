@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash
 from flask_login import login_required, current_user
 from app.models.result import Result
 from app.models.user import User
+from app.models.department import Department
 
 bp = Blueprint('main', __name__)
 
@@ -20,14 +21,10 @@ def dashboard():
             'total_students': User.query.filter(User.roles.any(name='student')).count(),
             'total_staff': User.query.filter(User.roles.any(name='staff')).count(),
             'total_results': Result.query.count(),
-<<<<<<< HEAD
             'total_departments': Department.query.count(),
             'pending_approvals': User.query.filter_by(is_approved=False).count(),
             'recent_users': User.query.order_by(User.created_at.desc()).limit(5).all(),
-            'recent_results': Result.query.order_by(Result.declaration_date.desc()).limit(5).all()
-=======
             'recent_results': Result.query.join(Result.student).order_by(Result.declaration_date.desc()).limit(5).all()
->>>>>>> 8a7d3d539d4d2916465601d4460b529061a29dc8
         }
         return render_template('dashboard/admin.html', stats=stats)
     

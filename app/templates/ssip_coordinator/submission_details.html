@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3><i class="fas fa-file-alt"></i> SSIP Submission Details</h3>
+                    <a href="{{ url_for('ssip_coordinator.view_submissions') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to List
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h4>Project Information</h4>
+                            <table class="table">
+                                <tr>
+                                    <th width="200">Project Title</th>
+                                    <td>{{ submission.project_title }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Category</th>
+                                    <td>{{ submission.project_category }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Stage</th>
+                                    <td>{{ submission.current_stage }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Project Description</th>
+                                    <td>{{ submission.project_description }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Innovation Details</th>
+                                    <td>{{ submission.innovation_details }}</td>
+                                </tr>
+                            </table>
+
+                            <h4 class="mt-4">Team Information</h4>
+                            <table class="table">
+                                <tr>
+                                    <th width="200">Student Name</th>
+                                    <td>{{ submission.student_name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Department</th>
+                                    <td>{{ submission.department.name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Team Members</th>
+                                    <td>{{ submission.team_members }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Guide Name</th>
+                                    <td>{{ submission.guide_name }}</td>
+                                </tr>
+                            </table>
+
+                            <h4 class="mt-4">Financial Details</h4>
+                            <table class="table">
+                                <tr>
+                                    <th width="200">Required Amount</th>
+                                    <td>₹{{ submission.required_amount }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Fund Utilization</th>
+                                    <td>{{ submission.fund_utilization }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4 class="mb-0">Review Submission</h4>
+                                </div>
+                                <div class="card-body">
+                                    <form id="statusForm" method="POST" action="{{ url_for('ssip_coordinator.update_submission_status', id=submission.id) }}">
+                                        <div class="mb-3">
+                                            <label class="form-label">Current Status</label>
+                                            <select name="status" class="form-select" required>
+                                                <option value="pending" {% if submission.status == 'pending' %}selected{% endif %}>Pending</option>
+                                                <option value="approved" {% if submission.status == 'approved' %}selected{% endif %}>Approved</option>
+                                                <option value="rejected" {% if submission.status == 'rejected' %}selected{% endif %}>Rejected</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Remarks</label>
+                                            <textarea name="remarks" class="form-control" rows="4">{{ submission.remarks or '' }}</textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Update Status</button>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <div class="card mt-3">
+                                <div class="card-header">
+                                    <h4 class="mb-0">Submission Info</h4>
+                                </div>
+                                <div class="card-body">
+                                    <p><strong>Submitted On:</strong><br>
+                                    {{ submission.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                                    
+                                    <p><strong>Last Updated:</strong><br>
+                                    {{ submission.updated_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                                    
+                                    <p><strong>Current Status:</strong><br>
+                                    <span class="badge {% if submission.status == 'approved' %}bg-success{% elif submission.status == 'rejected' %}bg-danger{% else %}bg-warning{% endif %}">
+                                        {{ submission.status|title }}
+                                    </span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+document.getElementById('statusForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    
+    fetch(this.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.error || 'An error occurred while updating the status.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while updating the status.');
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}
