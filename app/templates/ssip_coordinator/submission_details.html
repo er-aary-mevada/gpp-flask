@@ -76,20 +76,29 @@
                                     <h4 class="mb-0">Review Submission</h4>
                                 </div>
                                 <div class="card-body">
-                                    <form id="statusForm" method="POST" action="{{ url_for('ssip_coordinator.update_submission_status', id=submission.id) }}">
+                                    <form id="statusForm">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                         <div class="mb-3">
-                                            <label class="form-label">Current Status</label>
-                                            <select name="status" class="form-select" required>
-                                                <option value="pending" {% if submission.status == 'pending' %}selected{% endif %}>Pending</option>
-                                                <option value="approved" {% if submission.status == 'approved' %}selected{% endif %}>Approved</option>
-                                                <option value="rejected" {% if submission.status == 'rejected' %}selected{% endif %}>Rejected</option>
+                                            <label class="form-label">Update Status</label>
+                                            <select name="status" class="form-select" id="status-select" required>
+                                                <option value="">Select Status</option>
+                                                <option value="approved">Approve</option>
+                                                <option value="rejected">Reject</option>
                                             </select>
                                         </div>
                                         <div class="mb-3">
-                                            <label class="form-label">Remarks</label>
-                                            <textarea name="remarks" class="form-control" rows="4">{{ submission.remarks or '' }}</textarea>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="needs-revision" name="needs_revision">
+                                                <label class="form-check-label" for="needs-revision">
+                                                    Needs revision (send back to student)
+                                                </label>
+                                            </div>
                                         </div>
-                                        <button type="submit" class="btn btn-primary">Update Status</button>
+                                        <div class="mb-3">
+                                            <label class="form-label">Remarks</label>
+                                            <textarea name="remarks" id="remarks" class="form-control" rows="4" placeholder="Add your review comments here...">{{ submission.remarks or '' }}</textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Submit Review</button>
                                     </form>
                                 </div>
                             </div>
@@ -120,30 +129,44 @@
 </div>
 
 {% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
 <script>
-document.getElementById('statusForm').addEventListener('submit', function(e) {
+document.getElementById('statusForm').addEventListener('submit', async function(e) {
     e.preventDefault();
+    
     const formData = new FormData(this);
     
-    fetch(this.action, {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            location.reload();
+    try {
+        const response = await fetch('{{ url_for("ssip_coordinator.update_submission_status", id=submission.id) }}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': formData.get('csrf_token'),
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            Swal.fire({
+                title: 'Success!',
+                text: data.message,
+                icon: 'success'
+            }).then(() => {
+                window.location.reload();
+            });
         } else {
-            alert(data.error || 'An error occurred while updating the status.');
+            throw new Error(data.error || 'Failed to update status');
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred while updating the status.');
-    });
+    } catch (error) {
+        Swal.fire({
+            title: 'Error!',
+            text: error.message,
+            icon: 'error'
+        });
+    }
+
 });
 </script>
 {% endblock %}

@@ -39,11 +39,11 @@
                                         <td>{{ submission.created_at.strftime('%Y-%m-%d') }}</td>
                                         <td>
                                             <div class="btn-group">
-                                                <a href="#" class="btn btn-sm btn-info" title="View Details">
+                                                <a href="{{ url_for('ssip.view_submission', id=submission.id) }}" class="btn btn-sm btn-info" title="View Details">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
-                                                {% if submission.status == 'pending' %}
-                                                <a href="#" class="btn btn-sm btn-warning" title="Edit">
+                                                {% if submission.status in ['pending', 'revision_needed'] %}
+                                                <a href="{{ url_for('ssip.edit_submission', id=submission.id) }}" class="btn btn-sm btn-warning" title="Edit">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
                                                 {% endif %}

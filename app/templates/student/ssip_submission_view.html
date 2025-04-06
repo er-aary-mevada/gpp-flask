@@ -242,6 +242,45 @@
                 </div>
             </div>
             {% endif %}
+            
+            {% if current_user.has_role('coordinator') and ((current_user.department_id == submission.department_id and submission.workflow.current_reviewer == 'department') or (current_user.has_role('principal') and submission.workflow.current_reviewer == 'principal') or (not current_user.department_id and not current_user.has_role('principal') and submission.workflow.current_reviewer == 'college')) %}
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h4 class="mb-0">Review Submission</h4>
+                </div>
+                <div class="card-body">
+                    <form id="status-form" class="d-flex flex-column gap-3">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="status-select" class="form-label">Update Status</label>
+                                    <select name="status" class="form-select" id="status-select" required>
+                                        <option value="">Select Status</option>
+                                        <option value="approved">Approve</option>
+                                        <option value="rejected">Reject</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check mt-4">
+                                    <input class="form-check-input" type="checkbox" id="needs-revision">
+                                    <label class="form-check-label" for="needs-revision">
+                                        Needs revision (send back to student)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="remarks" class="form-label">Remarks</label>
+                            <textarea name="remarks" id="remarks" class="form-control" rows="3" placeholder="Add your review comments here..."></textarea>
+                        </div>
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-primary">Submit Review</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
     
@@ -266,6 +305,50 @@ function confirmDeleteAll() {
         }
     });
 }
+
+// Handle status update form submission
+document.addEventListener('DOMContentLoaded', function() {
+    const statusForm = document.getElementById('status-form');
+    if (statusForm) {
+        statusForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const status = document.getElementById('status-select').value;
+            const remarks = document.getElementById('remarks').value;
+            const needsRevision = document.getElementById('needs-revision')?.checked || false;
+            
+            try {
+                const response = await fetch('{{ url_for("ssip_coordinator.update_submission_status", id=submission.id) }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `status=${encodeURIComponent(status)}&remarks=${encodeURIComponent(remarks)}&needs_revision=${needsRevision}`
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: data.message,
+                        icon: 'success'
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    throw new Error(data.error || 'Failed to update status');
+                }
+            } catch (error) {
+                Swal.fire({
+                    title: 'Error!',
+                    text: error.message,
+                    icon: 'error'
+                });
+            }
+        });
+    }
+});
 </script>
 
 <style>

@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3><i class="fas fa-file-alt"></i> SSIP Submission Details</h3>
+                    <a href="{{ url_for('ssip.my_projects') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to List
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h4>Project Information</h4>
+                            <table class="table">
+                                <tr>
+                                    <th width="200">Project Title</th>
+                                    <td>{{ submission.project_title }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Category</th>
+                                    <td>{{ submission.project_category }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Stage</th>
+                                    <td>{{ submission.current_stage }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Problem Statement</th>
+                                    <td>{{ submission.problem_statement }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Solution Description</th>
+                                    <td>{{ submission.solution_description }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Innovation Details</th>
+                                    <td>{{ submission.innovation_description }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Technical Description</th>
+                                    <td>{{ submission.technical_description }}</td>
+                                </tr>
+                            </table>
+
+                            <h4 class="mt-4">Team Information</h4>
+                            <table class="table">
+                                <tr>
+                                    <th width="200">Student Name</th>
+                                    <td>{{ submission.student_name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Department</th>
+                                    <td>{{ submission.department.name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Team Members</th>
+                                    <td>
+                                        {% if submission.team_members %}
+                                            <ul class="list-unstyled mb-0">
+                                            {% for member in submission.team_members|from_json %}
+                                                <li>{{ member }}</li>
+                                            {% endfor %}
+                                            </ul>
+                                        {% else %}
+                                            No additional team members
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Mentor Name</th>
+                                    <td>{{ submission.mentor_name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Mentor Designation</th>
+                                    <td>{{ submission.mentor_designation }}</td>
+                                </tr>
+                            </table>
+
+                            <h4 class="mt-4">Financial Details</h4>
+                            <table class="table">
+                                <tr>
+                                    <th width="200">Estimated Cost</th>
+                                    <td>₹{{ submission.estimated_project_cost }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Fund Requirement</th>
+                                    <td>{{ submission.fund_requirement_description }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4 class="mb-0">Submission Info</h4>
+                                </div>
+                                <div class="card-body">
+                                    <p><strong>Submitted On:</strong><br>
+                                    {{ submission.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                                    
+                                    <p><strong>Last Updated:</strong><br>
+                                    {{ submission.updated_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                                    
+                                    <p><strong>Current Status:</strong><br>
+                                    <span class="badge {% if submission.status == 'approved' %}bg-success{% elif submission.status == 'rejected' %}bg-danger{% else %}bg-warning{% endif %}">
+                                        {{ submission.status|title }}
+                                    </span></p>
+
+                                    {% if submission.remarks %}
+                                    <p><strong>Reviewer Remarks:</strong><br>
+                                    {{ submission.remarks }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            {% if submission.status in ['pending', 'revision_needed'] and current_user.email == submission.email %}
+                            <div class="card mt-3">
+                                <div class="card-body">
+                                    <a href="{{ url_for('ssip.edit_submission', id=submission.id) }}" class="btn btn-warning btn-block">
+                                        <i class="fas fa-edit"></i> Edit Submission
+                                    </a>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

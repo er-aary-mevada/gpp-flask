@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% from 'bootstrap/form.html' import render_form %}
+
+{% block app_content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Edit SSIP Submission</h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {{ form.csrf_token }}
+                        
+                        <h4>Project Information</h4>
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                {{ render_form(form.project_title) }}
+                                {{ render_form(form.project_category) }}
+                                {{ render_form(form.current_stage) }}
+                                {{ render_form(form.problem_statement) }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ render_form(form.solution_description) }}
+                                {{ render_form(form.innovation_description) }}
+                                {{ render_form(form.technical_description) }}
+                            </div>
+                        </div>
+
+                        <h4>Team Information</h4>
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                {{ render_form(form.student_name) }}
+                                {{ render_form(form.enrollment_number) }}
+                                {{ render_form(form.contact_number) }}
+                                {{ render_form(form.email) }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ render_form(form.department_id) }}
+                                {{ render_form(form.semester) }}
+                                {{ render_form(form.mentor_name) }}
+                                {{ render_form(form.mentor_designation) }}
+                            </div>
+                        </div>
+
+                        <h4>Team Members</h4>
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <div class="team-members-container">
+                                    {% for member in form.team_members %}
+                                    <div class="team-member-entry mb-2">
+                                        {{ member(class="form-control", placeholder="Enter team member name") }}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                <button type="button" class="btn btn-secondary mt-2" id="add-member">
+                                    <i class="fas fa-plus"></i> Add Team Member
+                                </button>
+                            </div>
+                        </div>
+
+                        <h4>Financial Details</h4>
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                {{ render_form(form.estimated_project_cost) }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ render_form(form.fund_requirement_description) }}
+                            </div>
+                        </div>
+
+                        <h4>Supporting Documents</h4>
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                {{ render_form(form.proposal_document) }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ render_form(form.presentation) }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ render_form(form.additional_documents) }}
+                            </div>
+                        </div>
+
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+{{ super() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const addMemberBtn = document.getElementById('add-member');
+    const teamMembersContainer = document.querySelector('.team-members-container');
+    const maxMembers = 5;
+
+    addMemberBtn.addEventListener('click', function() {
+        const currentMembers = teamMembersContainer.children.length;
+        if (currentMembers < maxMembers) {
+            const newEntry = document.createElement('div');
+            newEntry.className = 'team-member-entry mb-2';
+            
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'form-control';
+            input.name = `team_members-${currentMembers}`;
+            input.placeholder = 'Enter team member name';
+            
+            newEntry.appendChild(input);
+            teamMembersContainer.appendChild(newEntry);
+            
+            if (teamMembersContainer.children.length >= maxMembers) {
+                addMemberBtn.style.display = 'none';
+            }
+        }
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}
