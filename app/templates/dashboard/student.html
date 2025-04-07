@@ -87,6 +87,60 @@
                 </div>
             </div>
         </div>
+
+        <!-- SSIP Project Fund Request Panel -->
+        <div class="col-md-12 mt-4">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h3 class="panel-title">📝 SSIP Project Fund Request & Utilization</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header bg-info text-white">
+                                    <h4 class="card-title mb-0">Form 1 – Fund Request Application</h4>
+                                </div>
+                                <div class="card-body">
+                                    <p><strong>Submit Before Purchase:</strong></p>
+                                    <ul class="list-unstyled">
+                                        <li>✓ Project Title & Application Number</li>
+                                        <li>✓ Items/Services to purchase</li>
+                                        <li>✓ 3 quotations with specifications</li>
+                                        <li>✓ Team Leader & Faculty Mentor signatures</li>
+                                    </ul>
+                                    <a href="{{ url_for('ssip.fund_request_form') }}" class="btn btn-primary">
+                                        <i class="fas fa-file-invoice"></i> Fill Fund Request Form
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header bg-success text-white">
+                                    <h4 class="card-title mb-0">Form 2 – Utilization Certificate</h4>
+                                </div>
+                                <div class="card-body">
+                                    <p><strong>Submit After Purchase:</strong></p>
+                                    <ul class="list-unstyled">
+                                        <li>✓ Total grant sanctioned & utilized</li>
+                                        <li>✓ Item details with quantity & cost</li>
+                                        <li>✓ Original invoices</li>
+                                        <li>✓ Required signatures</li>
+                                    </ul>
+                                    <a href="{{ url_for('ssip.utilization_form') }}" class="btn btn-success">
+                                        <i class="fas fa-file-invoice-dollar"></i> Fill Utilization Form
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="alert alert-warning mt-3">
+                        <i class="fas fa-exclamation-triangle"></i> <strong>Important:</strong> Do not proceed with any purchases before completing Form 1 and getting approval from your Mentor.
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="card-title mb-0">📝 SSIP Project Fund Request Form</h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.project_title.label(class="form-label") }}
+                                    {{ form.project_title(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.application_number.label(class="form-label") }}
+                                    {{ form.application_number(class="form-control") }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.department.label(class="form-label") }}
+                                    {{ form.department(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.team_leader.label(class="form-label") }}
+                                    {{ form.team_leader(class="form-control") }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-md-12">
+                                <h4>Items/Services to Purchase</h4>
+                                <div id="items-container">
+                                    {% for item in form.items %}
+                                    <div class="item-entry border p-3 mb-3">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                {{ item.item_name.label(class="form-label") }}
+                                                {{ item.item_name(class="form-control") }}
+                                            </div>
+                                            <div class="col-md-3">
+                                                {{ item.quantity.label(class="form-label") }}
+                                                {{ item.quantity(class="form-control") }}
+                                            </div>
+                                            <div class="col-md-3">
+                                                {{ item.estimated_cost.label(class="form-label") }}
+                                                {{ item.estimated_cost(class="form-control") }}
+                                            </div>
+                                        </div>
+                                        <div class="row mt-3">
+                                            <div class="col-md-12">
+                                                {{ item.quotations.label(class="form-label") }}
+                                                {{ item.quotations(class="form-control") }}
+                                                <small class="text-muted">Upload 3 quotations (PDF format)</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                <button type="button" class="btn btn-secondary" id="add-item">
+                                    <i class="fas fa-plus"></i> Add Another Item
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    {{ form.purpose.label(class="form-label") }}
+                                    {{ form.purpose(class="form-control", rows=3) }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.mentor_name.label(class="form-label") }}
+                                    {{ form.mentor_name(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.mentor_signature.label(class="form-label") }}
+                                    {{ form.mentor_signature(class="form-control") }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i> Submit Fund Request
+                            </button>
+                            <a href="{{ url_for('ssip.index') }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Back
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+document.getElementById('add-item').addEventListener('click', function() {
+    const container = document.getElementById('items-container');
+    const itemCount = container.children.length;
+    const template = container.children[0].cloneNode(true);
+    
+    // Update IDs and names
+    template.querySelectorAll('input, select, textarea').forEach(input => {
+        const newId = input.id.replace('-0-', `-${itemCount}-`);
+        const newName = input.name.replace('-0-', `-${itemCount}-`);
+        input.id = newId;
+        input.name = newName;
+        input.value = '';
+    });
+
+    container.appendChild(template);
+});
+</script>
+{% endblock %}
+{% endblock %}

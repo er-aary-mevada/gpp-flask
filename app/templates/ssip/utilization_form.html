@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h3 class="card-title mb-0">📝 SSIP Project Fund Utilization Certificate</h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.project_title.label(class="form-label") }}
+                                    {{ form.project_title(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.application_number.label(class="form-label") }}
+                                    {{ form.application_number(class="form-control") }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.total_sanctioned.label(class="form-label") }}
+                                    {{ form.total_sanctioned(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.total_utilized.label(class="form-label") }}
+                                    {{ form.total_utilized(class="form-control") }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-md-12">
+                                <h4>Purchased Items/Services</h4>
+                                <div id="items-container">
+                                    {% for item in form.items %}
+                                    <div class="item-entry border p-3 mb-3">
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                {{ item.item_name.label(class="form-label") }}
+                                                {{ item.item_name(class="form-control") }}
+                                            </div>
+                                            <div class="col-md-2">
+                                                {{ item.quantity.label(class="form-label") }}
+                                                {{ item.quantity(class="form-control") }}
+                                            </div>
+                                            <div class="col-md-3">
+                                                {{ item.cost.label(class="form-label") }}
+                                                {{ item.cost(class="form-control") }}
+                                            </div>
+                                            <div class="col-md-3">
+                                                {{ item.invoice.label(class="form-label") }}
+                                                {{ item.invoice(class="form-control") }}
+                                                <small class="text-muted">Upload original invoice (PDF format)</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                <button type="button" class="btn btn-secondary" id="add-item">
+                                    <i class="fas fa-plus"></i> Add Another Item
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-md-12">
+                                <h4>Signatures</h4>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.team_leader_signature.label(class="form-label") }}
+                                    {{ form.team_leader_signature(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.mentor_signature.label(class="form-label") }}
+                                    {{ form.mentor_signature(class="form-control") }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.dept_coordinator_signature.label(class="form-label") }}
+                                    {{ form.dept_coordinator_signature(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.finance_member_signature.label(class="form-label") }}
+                                    {{ form.finance_member_signature(class="form-control") }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-paper-plane"></i> Submit Utilization Certificate
+                            </button>
+                            <a href="{{ url_for('ssip.index') }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Back
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+document.getElementById('add-item').addEventListener('click', function() {
+    const container = document.getElementById('items-container');
+    const itemCount = container.children.length;
+    const template = container.children[0].cloneNode(true);
+    
+    // Update IDs and names
+    template.querySelectorAll('input, select, textarea').forEach(input => {
+        const newId = input.id.replace('-0-', `-${itemCount}-`);
+        const newName = input.name.replace('-0-', `-${itemCount}-`);
+        input.id = newId;
+        input.name = newName;
+        input.value = '';
+    });
+
+    container.appendChild(template);
+});
+</script>
+{% endblock %}
+{% endblock %}

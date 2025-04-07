@@ -6,6 +6,7 @@ from app.models.ssip_submission import SSIPSubmission
 from app.models.ssip_workflow import SSIPWorkflow
 from app.models.department import Department
 from app.forms.ssip import SSIPSubmissionForm
+from app.forms.ssip_fund import FundRequestForm, UtilizationForm
 from app.extensions import db
 import json
 import os
@@ -92,6 +93,77 @@ def my_projects():
 @login_required
 def guidelines():
     return render_template('ssip/guidelines.html')
+
+@bp.route('/fund-request-form', methods=['GET', 'POST'])
+@login_required
+def fund_request_form():
+    form = FundRequestForm()
+    if form.validate_on_submit():
+        # Create upload directory
+        upload_dir = os.path.join(current_app.config['UPLOAD_FOLDER'], 'ssip_fund_requests')
+        os.makedirs(upload_dir, exist_ok=True)
+        
+        # Process form data and save files
+        files = {}
+        for item in form.items:
+            quotations = item.quotations.data
+            if quotations:
+                filename = secure_filename(quotations.filename)
+                file_path = os.path.join(upload_dir, filename)
+                quotations.save(file_path)
+                files[f'quotation_{item.item_name.data}'] = filename
+        
+        # Save mentor signature
+        if form.mentor_signature.data:
+            filename = secure_filename(form.mentor_signature.data.filename)
+            file_path = os.path.join(upload_dir, filename)
+            form.mentor_signature.data.save(file_path)
+            files['mentor_signature'] = filename
+        
+        # TODO: Save form data to database
+        # This would require creating appropriate database models
+        
+        flash('Fund request submitted successfully!', 'success')
+        return redirect(url_for('ssip.my_projects'))
+    
+    return render_template('ssip/fund_request_form.html', form=form)
+
+@bp.route('/utilization-form', methods=['GET', 'POST'])
+@login_required
+def utilization_form():
+    form = UtilizationForm()
+    if form.validate_on_submit():
+        # Create upload directory
+        upload_dir = os.path.join(current_app.config['UPLOAD_FOLDER'], 'ssip_utilization')
+        os.makedirs(upload_dir, exist_ok=True)
+        
+        # Process form data and save files
+        files = {}
+        for item in form.items:
+            invoice = item.invoice.data
+            if invoice:
+                filename = secure_filename(invoice.filename)
+                file_path = os.path.join(upload_dir, filename)
+                invoice.save(file_path)
+                files[f'invoice_{item.item_name.data}'] = filename
+        
+        # Save signatures
+        for field in ['team_leader_signature', 'mentor_signature', 
+                     'dept_coordinator_signature', 'finance_member_signature']:
+            file = getattr(form, field).data
+            if file:
+                filename = secure_filename(file.filename)
+                file_path = os.path.join(upload_dir, filename)
+                file.save(file_path)
+                files[field] = filename
+        
+        # TODO: Save form data to database
+        # This would require creating appropriate database models
+        
+        flash('Utilization certificate submitted successfully!', 'success')
+        return redirect(url_for('ssip.my_projects'))
+    
+    return render_template('ssip/utilization_form.html', form=form)
 
 @bp.route('/submission/<int:id>')
 @login_required
