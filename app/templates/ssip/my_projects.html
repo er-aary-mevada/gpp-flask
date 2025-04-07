@@ -17,6 +17,7 @@
                             <table class="table table-hover">
                                 <thead>
                                     <tr>
+                                        <th>Application No.</th>
                                         <th>Project Title</th>
                                         <th>Category</th>
                                         <th>Stage</th>
@@ -28,6 +29,7 @@
                                 <tbody>
                                     {% for submission in submissions %}
                                     <tr>
+                                        <td><code>{{ submission.application_number or 'N/A' }}</code></td>
                                         <td>{{ submission.project_title }}</td>
                                         <td>{{ submission.project_category }}</td>
                                         <td>{{ submission.current_stage }}</td>

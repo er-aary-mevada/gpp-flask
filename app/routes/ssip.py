@@ -41,8 +41,14 @@ def submit_idea():
                 file.save(file_path)
                 files[field] = filename
         
+        # Generate application number
+        application_number = SSIPSubmission.generate_application_number(form.department_id.data)
+        while SSIPSubmission.query.filter_by(application_number=application_number).first():
+            application_number = SSIPSubmission.generate_application_number(form.department_id.data)
+        
         # Create new submission
         submission = SSIPSubmission(
+            application_number=application_number,
             project_title=form.project_title.data,
             team_name=form.team_name.data,
             student_name=form.student_name.data,
@@ -93,6 +99,11 @@ def my_projects():
 @login_required
 def guidelines():
     return render_template('ssip/guidelines.html')
+
+@bp.route('/fund-guidelines')
+@login_required
+def fund_guidelines():
+    return render_template('ssip/fund_guidelines.html')
 
 @bp.route('/fund-request-form', methods=['GET', 'POST'])
 @login_required
@@ -157,10 +168,17 @@ def utilization_form():
                 file.save(file_path)
                 files[field] = filename
         
-        # TODO: Save form data to database
-        # This would require creating appropriate database models
+        # Create workflow for utilization certificate
+        workflow = SSIPWorkflow(
+            submission_id=None,  # TODO: Create utilization model and use its ID
+            current_reviewer='dept_coordinator',
+            status='pending',
+            comments='Utilization certificate submitted, awaiting Department Coordinator review'
+        )
+        db.session.add(workflow)
+        db.session.commit()
         
-        flash('Utilization certificate submitted successfully!', 'success')
+        flash('Utilization certificate submitted successfully! It will be reviewed by the Department SSIP Coordinator.', 'success')
         return redirect(url_for('ssip.my_projects'))
     
     return render_template('ssip/utilization_form.html', form=form)

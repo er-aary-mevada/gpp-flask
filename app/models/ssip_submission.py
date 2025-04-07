@@ -1,5 +1,7 @@
 from datetime import datetime
 from ..extensions import db
+import random
+import string
 
 class SSIPSubmission(db.Model):
     __tablename__ = 'ssip_submissions'
@@ -7,9 +9,17 @@ class SSIPSubmission(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     
     # Basic Information
+    application_number = db.Column(db.String(20), unique=True)
     project_title = db.Column(db.String(200), nullable=False)
     team_name = db.Column(db.String(100))
     submission_date = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    @staticmethod
+    def generate_application_number(department_id):
+        # Format: SSIP-DEPT-YEAR-RANDOM
+        year = datetime.utcnow().strftime('%y')
+        random_digits = ''.join(random.choices(string.digits, k=4))
+        return f'SSIP-{department_id:02d}-{year}-{random_digits}'
     
     # Team Details
     student_name = db.Column(db.String(100), nullable=False)

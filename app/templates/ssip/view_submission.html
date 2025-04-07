@@ -6,7 +6,12 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h3><i class="fas fa-file-alt"></i> SSIP Submission Details</h3>
+                    <h3>
+                        <i class="fas fa-file-alt"></i> SSIP Submission Details
+                        {% if submission.application_number %}
+                        <small class="text-muted">(Application No: <code>{{ submission.application_number }}</code>)</small>
+                        {% endif %}
+                    </h3>
                     <a href="{{ url_for('ssip.my_projects') }}" class="btn btn-secondary">
                         <i class="fas fa-arrow-left"></i> Back to List
                     </a>
@@ -16,6 +21,10 @@
                         <div class="col-md-8">
                             <h4>Project Information</h4>
                             <table class="table">
+                                <tr>
+                                    <th width="200">Application Number</th>
+                                    <td><code>{{ submission.application_number or 'Not Assigned' }}</code></td>
+                                </tr>
                                 <tr>
                                     <th width="200">Project Title</th>
                                     <td>{{ submission.project_title }}</td>

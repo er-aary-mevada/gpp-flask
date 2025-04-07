@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-info-circle"></i> SSIP Fund Request Submission Process
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="submission-steps">
+                        <h4 class="text-primary">
+                            <i class="fas fa-clipboard-list"></i> Submission Process
+                        </h4>
+                        
+                        <div class="step mt-4">
+                            <h5>
+                                <span class="badge bg-primary">Step 1</span> 
+                                Submit Form 1 (Fund Request) for Approval
+                            </h5>
+                            <div class="ms-4">
+                                <p>Your form will be reviewed by the SSIP Coordinator. Please wait for confirmation from the Coordinator before proceeding with any purchases.</p>
+                                <a href="{{ url_for('ssip.fund_request_form') }}" class="btn btn-outline-primary">
+                                    <i class="fas fa-file-invoice"></i> Go to Fund Request Form
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="step mt-4">
+                            <h5>
+                                <span class="badge bg-success">Step 2</span> 
+                                Submit Form 2 (Utilization Certificate)
+                            </h5>
+                            <div class="ms-4">
+                                <p>Once your purchases are completed, submit Form 2 along with the invoices.</p>
+                                <p>This will be verified and processed by the SSIP Coordinator and Finance Member for final approval.</p>
+                                <a href="{{ url_for('ssip.utilization_form') }}" class="btn btn-outline-success">
+                                    <i class="fas fa-file-invoice-dollar"></i> Go to Utilization Form
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="workflow mt-5">
+                            <h4 class="text-primary">
+                                <i class="fas fa-project-diagram"></i> After Submission
+                            </h4>
+                            <div class="ms-4">
+                                <h5>Form 1 Workflow:</h5>
+                                <ol class="workflow-steps">
+                                    <li>Your request is forwarded to the SSIP Coordinator for review</li>
+                                    <li>Wait for confirmation before making any purchases</li>
+                                </ol>
+
+                                <h5 class="mt-3">Form 2 Workflow:</h5>
+                                <ol class="workflow-steps">
+                                    <li>Submit to Department SSIP Coordinator</li>
+                                    <li>Wait for verification</li>
+                                    <li>Processing by SSIP Finance Member</li>
+                                    <li>Final approval by Institute SSIP Coordinator</li>
+                                </ol>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-warning mt-4">
+                            <h5 class="alert-heading">
+                                <i class="fas fa-exclamation-triangle"></i> Important Note
+                            </h5>
+                            <p class="mb-0">Do not proceed with purchasing any items until you have received confirmation from your SSIP Coordinator after submitting Form 1.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.workflow-steps li {
+    margin-bottom: 0.5rem;
+    padding-left: 0.5rem;
+}
+.step {
+    border-left: 3px solid #e9ecef;
+    padding-left: 1rem;
+}
+</style>
+{% endblock %}
