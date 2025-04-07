@@ -273,7 +273,18 @@
             <div class="nav-wrapper">
                 {% if current_user.is_authenticated %}
                     {% if current_user.has_role('admin') %}
-                        <a class="nav-link" href="{{ url_for('admin.index') }}">Admin</a>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin.index') }}">
+                                <i class="fas fa-cogs"></i> Admin Dashboard
+                            </a>
+                        </li>
+                    {% endif %}
+                    {% if current_user.has_role('lecturer') %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('ssip_coordinator.view_submissions') }}">
+                                <i class="fas fa-tasks"></i> SSIP Submissions
+                            </a>
+                        </li>
                     {% endif %}
                     <a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a>
                 {% else %}
@@ -332,6 +343,7 @@
 {% endblock %}
 
 {% block scripts %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     {{ super() }}
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>

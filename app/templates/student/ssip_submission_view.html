@@ -1,0 +1,461 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center gap-3">
+            <a href="{{ url_for('student.my_ssip_submissions') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back
+            </a>
+            <h2 class="mb-0">SSIP Submission Details</h2>
+        </div>
+        
+        <div class="d-flex gap-2">
+            {% if 'pending' in submission.status %}
+                <button onclick="confirmDeleteAll()" class="btn btn-danger">
+                    <i class="fas fa-trash-alt me-2"></i>Delete All Pending
+                </button>
+                <a href="{{ url_for('student.edit_ssip_submission', id=submission.id) }}" class="btn btn-warning">
+                    <i class="fas fa-edit me-2"></i>Edit
+                </a>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Hidden delete all form -->
+    <form id="delete-all-form" 
+          action="{{ url_for('student.delete_all_ssip_submissions') }}" 
+          method="POST" 
+          style="display: none;">
+    </form>
+    
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">{{ submission.project_title }}</h3>
+            <span class="badge {% if 'approved' in submission.status %}bg-success{% elif 'rejected' in submission.status %}bg-danger{% else %}bg-warning{% endif %}">
+                {{ submission.current_status_display }}
+            </span>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h4>Basic Information</h4>
+                    <dl class="row">
+                        <dt class="col-sm-4">Team Name</dt>
+                        <dd class="col-sm-8">{{ submission.team_name }}</dd>
+                        
+                        <dt class="col-sm-4">Submission Date</dt>
+                        <dd class="col-sm-8">{{ submission.submission_date.strftime('%Y-%m-%d') }}</dd>
+                        
+                        <dt class="col-sm-4">Department</dt>
+                        <dd class="col-sm-8">{{ submission.department.name }}</dd>
+                        
+                        <dt class="col-sm-4">Semester</dt>
+                        <dd class="col-sm-8">{{ submission.semester }}</dd>
+                    </dl>
+                </div>
+                
+                <div class="col-md-6">
+                    <h4>Team Details</h4>
+                    <dl class="row">
+                        <dt class="col-sm-4">Student Name</dt>
+                        <dd class="col-sm-8">{{ submission.student_name }}</dd>
+                        
+                        <dt class="col-sm-4">Enrollment Number</dt>
+                        <dd class="col-sm-8">{{ submission.enrollment_number }}</dd>
+                        
+                        <dt class="col-sm-4">Contact Number</dt>
+                        <dd class="col-sm-8">{{ submission.contact_number }}</dd>
+                        
+                        <dt class="col-sm-4">Email</dt>
+                        <dd class="col-sm-8">{{ submission.email }}</dd>
+                    </dl>
+                </div>
+            </div>
+            
+            <div class="row mt-4">
+                <div class="col-12">
+                    <h4>Project Details</h4>
+                    <dl class="row">
+                        <dt class="col-sm-2">Problem Statement</dt>
+                        <dd class="col-sm-10">{{ submission.problem_statement }}</dd>
+                        
+                        <dt class="col-sm-2">Solution Description</dt>
+                        <dd class="col-sm-10">{{ submission.solution_description }}</dd>
+                        
+                        <dt class="col-sm-2">Innovation Description</dt>
+                        <dd class="col-sm-10">{{ submission.innovation_description }}</dd>
+                        
+                        <dt class="col-sm-2">Technical Description</dt>
+                        <dd class="col-sm-10">{{ submission.technical_description }}</dd>
+                        
+                        <dt class="col-sm-2">Project Category</dt>
+                        <dd class="col-sm-10">{{ submission.project_category }}</dd>
+                    </dl>
+                </div>
+            </div>
+            
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <h4>Financial Details</h4>
+                    <dl class="row">
+                        <dt class="col-sm-4">Estimated Cost</dt>
+                        <dd class="col-sm-8">₹{{ "%.2f"|format(submission.estimated_project_cost) }}</dd>
+                        
+                        <dt class="col-sm-4">Fund Requirement</dt>
+                        <dd class="col-sm-8">{{ submission.fund_requirement_description }}</dd>
+                    </dl>
+                </div>
+                
+                <div class="col-md-6">
+                    <h4>Additional Information</h4>
+                    <dl class="row">
+                        <dt class="col-sm-4">Current Stage</dt>
+                        <dd class="col-sm-8">{{ submission.current_stage }}</dd>
+                        
+                        <dt class="col-sm-4">Completion Time</dt>
+                        <dd class="col-sm-8">{{ submission.completion_time }} months</dd>
+                        
+                        <dt class="col-sm-4">Mentor Name</dt>
+                        <dd class="col-sm-8">{{ submission.mentor_name }}</dd>
+                        
+                        <dt class="col-sm-4">Mentor Designation</dt>
+                        <dd class="col-sm-8">{{ submission.mentor_designation }}</dd>
+                    </dl>
+                </div>
+            </div>
+            
+            {% if submission.workflow %}
+            <div class="row mt-4">
+                <div class="col-12">
+                    <h4>Approval Status</h4>
+                    <div class="timeline">
+                        <!-- Department Review -->
+                        <div class="timeline-item {% if submission.workflow.dept_action_date %}{{ submission.workflow.dept_status }}{% elif submission.workflow.current_reviewer == 'department' %}active{% endif %}">
+                            <div class="timeline-marker">
+                                {% if submission.workflow.dept_action_date %}
+                                    <i class="fas {% if submission.workflow.dept_status == 'approved' %}fa-check text-success{% else %}fa-times text-danger{% endif %}"></i>
+                                {% elif submission.workflow.current_reviewer == 'department' %}
+                                    <i class="fas fa-clock text-warning"></i>
+                                {% else %}
+                                    <i class="fas fa-circle"></i>
+                                {% endif %}
+                            </div>
+                            <div class="timeline-content">
+                                <h5>Department Review</h5>
+                                {% if submission.workflow.dept_action_date %}
+                                    <p>{{ submission.workflow.dept_status|title }} on {{ submission.workflow.dept_action_date.strftime('%Y-%m-%d') }}</p>
+                                    {% if submission.workflow.dept_remarks %}
+                                        <p class="text-muted">{{ submission.workflow.dept_remarks }}</p>
+                                    {% endif %}
+                                {% elif submission.workflow.current_reviewer == 'department' %}
+                                    <p>Pending Review</p>
+                                {% else %}
+                                    <p>Waiting</p>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- College Review -->
+                        <div class="timeline-item {% if submission.workflow.college_action_date %}{{ submission.workflow.college_status }}{% elif submission.workflow.current_reviewer == 'college' %}active{% endif %}">
+                            <div class="timeline-marker">
+                                {% if submission.workflow.college_action_date %}
+                                    <i class="fas {% if submission.workflow.college_status == 'approved' %}fa-check text-success{% else %}fa-times text-danger{% endif %}"></i>
+                                {% elif submission.workflow.current_reviewer == 'college' %}
+                                    <i class="fas fa-clock text-warning"></i>
+                                {% else %}
+                                    <i class="fas fa-circle"></i>
+                                {% endif %}
+                            </div>
+                            <div class="timeline-content">
+                                <h5>College Review</h5>
+                                {% if submission.workflow.college_action_date %}
+                                    <p>{{ submission.workflow.college_status|title }} on {{ submission.workflow.college_action_date.strftime('%Y-%m-%d') }}</p>
+                                    {% if submission.workflow.college_remarks %}
+                                        <p class="text-muted">{{ submission.workflow.college_remarks }}</p>
+                                    {% endif %}
+                                {% elif submission.workflow.current_reviewer == 'college' %}
+                                    <p>Pending Review</p>
+                                {% else %}
+                                    <p>Waiting</p>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Principal Review -->
+                        <div class="timeline-item {% if submission.workflow.principal_action_date %}{{ submission.workflow.principal_status }}{% elif submission.workflow.current_reviewer == 'principal' %}active{% endif %}">
+                            <div class="timeline-marker">
+                                {% if submission.workflow.principal_action_date %}
+                                    <i class="fas {% if submission.workflow.principal_status == 'approved' %}fa-check text-success{% else %}fa-times text-danger{% endif %}"></i>
+                                {% elif submission.workflow.current_reviewer == 'principal' %}
+                                    <i class="fas fa-clock text-warning"></i>
+                                {% else %}
+                                    <i class="fas fa-circle"></i>
+                                {% endif %}
+                            </div>
+                            <div class="timeline-content">
+                                <h5>Principal Review</h5>
+                                {% if submission.workflow.principal_action_date %}
+                                    <p>{{ submission.workflow.principal_status|title }} on {{ submission.workflow.principal_action_date.strftime('%Y-%m-%d') }}</p>
+                                    {% if submission.workflow.principal_remarks %}
+                                        <p class="text-muted">{{ submission.workflow.principal_remarks }}</p>
+                                    {% endif %}
+                                {% elif submission.workflow.current_reviewer == 'principal' %}
+                                    <p>Pending Review</p>
+                                {% else %}
+                                    <p>Waiting</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <h5>Department Review</h5>
+                            <p>Status: <span class="badge {% if submission.workflow.dept_status == 'approved' %}bg-success{% else %}bg-danger{% endif %}">{{ submission.workflow.dept_status|title }}</span></p>
+                            <p>Date: {{ submission.workflow.dept_action_date.strftime('%Y-%m-%d') }}</p>
+                            {% if submission.workflow.dept_remarks %}
+                            <p>Remarks: {{ submission.workflow.dept_remarks }}</p>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                        
+                        {% if submission.workflow.college_action_date %}
+                        <div class="timeline-item">
+                            <h5>College Review</h5>
+                            <p>Status: <span class="badge {% if submission.workflow.college_status == 'approved' %}bg-success{% else %}bg-danger{% endif %}">{{ submission.workflow.college_status|title }}</span></p>
+                            <p>Date: {{ submission.workflow.college_action_date.strftime('%Y-%m-%d') }}</p>
+                            {% if submission.workflow.college_remarks %}
+                            <p>Remarks: {{ submission.workflow.college_remarks }}</p>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                        
+                        {% if submission.workflow.principal_action_date %}
+                        <div class="timeline-item">
+                            <h5>Principal Review</h5>
+                            <p>Status: <span class="badge {% if submission.workflow.principal_status == 'approved' %}bg-success{% else %}bg-danger{% endif %}">{{ submission.workflow.principal_status|title }}</span></p>
+                            <p>Date: {{ submission.workflow.principal_action_date.strftime('%Y-%m-%d') }}</p>
+                            {% if submission.workflow.principal_remarks %}
+                            <p>Remarks: {{ submission.workflow.principal_remarks }}</p>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if current_user.has_role('coordinator') and ((current_user.department_id == submission.department_id and submission.workflow.current_reviewer == 'department') or (current_user.has_role('principal') and submission.workflow.current_reviewer == 'principal') or (not current_user.department_id and not current_user.has_role('principal') and submission.workflow.current_reviewer == 'college')) %}
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h4 class="mb-0">Review Submission</h4>
+                </div>
+                <div class="card-body">
+                    <form id="status-form" class="d-flex flex-column gap-3">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="status-select" class="form-label">Update Status</label>
+                                    <select name="status" class="form-select" id="status-select" required>
+                                        <option value="">Select Status</option>
+                                        <option value="approved">Approve</option>
+                                        <option value="rejected">Reject</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check mt-4">
+                                    <input class="form-check-input" type="checkbox" id="needs-revision">
+                                    <label class="form-check-label" for="needs-revision">
+                                        Needs revision (send back to student)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="remarks" class="form-label">Remarks</label>
+                            <textarea name="remarks" id="remarks" class="form-control" rows="3" placeholder="Add your review comments here..."></textarea>
+                        </div>
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-primary">Submit Review</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
+<script>
+function confirmDeleteAll() {
+    Swal.fire({
+        title: 'Delete All Pending Submissions',
+        text: "Are you sure you want to delete all pending submissions? This action cannot be undone!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete all!',
+        cancelButtonText: 'No, keep them'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById('delete-all-form').submit();
+        }
+    });
+}
+
+// Handle status update form submission
+document.addEventListener('DOMContentLoaded', function() {
+    const statusForm = document.getElementById('status-form');
+    if (statusForm) {
+        statusForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const status = document.getElementById('status-select').value;
+            const remarks = document.getElementById('remarks').value;
+            const needsRevision = document.getElementById('needs-revision')?.checked || false;
+            
+            try {
+                const response = await fetch('{{ url_for("ssip_coordinator.update_submission_status", id=submission.id) }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `status=${encodeURIComponent(status)}&remarks=${encodeURIComponent(remarks)}&needs_revision=${needsRevision}`
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: data.message,
+                        icon: 'success'
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    throw new Error(data.error || 'Failed to update status');
+                }
+            } catch (error) {
+                Swal.fire({
+                    title: 'Error!',
+                    text: error.message,
+                    icon: 'error'
+                });
+            }
+        });
+    }
+});
+</script>
+
+<style>
+/* Timeline styles */
+.timeline {
+    position: relative;
+    padding: 20px 0;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 30px;
+    padding-left: 40px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #f8f9fa;
+    border: 2px solid #dee2e6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.timeline-marker i {
+    font-size: 12px;
+}
+
+.timeline-content {
+    background: #fff;
+    padding: 15px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.timeline-content h5 {
+    margin: 0 0 10px;
+    color: #495057;
+}
+
+.timeline-item:before {
+    content: '';
+    position: absolute;
+    left: 11px;
+    top: 24px;
+    height: calc(100% + 6px);
+    width: 2px;
+    background: #dee2e6;
+}
+
+.timeline-item:last-child:before {
+    display: none;
+}
+
+/* Status colors */
+.timeline-item.active .timeline-marker {
+    border-color: #ffc107;
+    background: #fff3cd;
+}
+
+.timeline-item.approved .timeline-marker {
+    border-color: #28a745;
+    background: #d4edda;
+}
+
+.timeline-item.rejected .timeline-marker {
+    border-color: #dc3545;
+    background: #f8d7da;
+}
+
+.timeline-item.active .timeline-content {
+    border-left: 3px solid #ffc107;
+}
+
+.timeline-item.approved .timeline-content {
+    border-left: 3px solid #28a745;
+}
+
+.timeline-item.rejected .timeline-content {
+    border-left: 3px solid #dc3545;
+}
+
+.timeline {
+    position: relative;
+    padding: 20px 0;
+}
+
+.timeline-item {
+    padding: 20px;
+    border-left: 2px solid #dee2e6;
+    margin-left: 20px;
+    position: relative;
+}
+
+.timeline-item:before {
+    content: '';
+    width: 12px;
+    height: 12px;
+    background: #007bff;
+    border-radius: 50%;
+    position: absolute;
+    left: -7px;
+    top: 24px;
+}
+</style>
+{% endblock %}

@@ -6,25 +6,215 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
-                    <h3><i class="fas fa-plus"></i> Submit New Idea</h3>
+                    <h3><i class="fas fa-plus"></i> Submit SSIP Project Proposal</h3>
                 </div>
                 <div class="card-body">
-                    <form method="POST" action="{{ url_for('ssip.submit_idea') }}">
-                        {{ csrf_token() }}
+                    <form method="POST" action="{{ url_for('ssip.submit_idea') }}" enctype="multipart/form-data">
+                        {{ form.csrf_token }}
+                        
+                        <!-- Basic Information -->
+                        <h4 class="mb-3">Basic Information</h4>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.project_title.label(class="form-label") }}
+                                    {{ form.project_title(class="form-control") }}
+                                    {% for error in form.project_title.errors %}
+                                        <span class="text-danger">{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.team_name.label(class="form-label") }}
+                                    {{ form.team_name(class="form-control") }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Team Details -->
+                        <h4 class="mt-4 mb-3">Team Details</h4>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.student_name.label(class="form-label") }}
+                                    {{ form.student_name(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.enrollment_number.label(class="form-label") }}
+                                    {{ form.enrollment_number(class="form-control") }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.contact_number.label(class="form-label") }}
+                                    {{ form.contact_number(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.email.label(class="form-label") }}
+                                    {{ form.email(class="form-control") }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.department_id.label(class="form-label") }}
+                                    {{ form.department_id(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.semester.label(class="form-label") }}
+                                    {{ form.semester(class="form-control") }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Project Details -->
+                        <h4 class="mt-4 mb-3">Project Details</h4>
                         <div class="form-group">
-                            <label for="title">Project Title</label>
-                            <input type="text" class="form-control" id="title" name="title" required>
+                            {{ form.problem_statement.label(class="form-label") }}
+                            {{ form.problem_statement(class="form-control", rows=4) }}
+                            <small class="form-text text-muted">Clearly describe the problem you are trying to solve.</small>
                         </div>
                         <div class="form-group mt-3">
-                            <label for="description">Project Description</label>
-                            <textarea class="form-control" id="description" name="description" rows="5" required></textarea>
-                            <small class="form-text text-muted">Describe your idea, its objectives, and potential impact.</small>
+                            {{ form.solution_description.label(class="form-label") }}
+                            {{ form.solution_description(class="form-control", rows=4) }}
+                            <small class="form-text text-muted">Explain your proposed solution in detail.</small>
                         </div>
-                        <button type="submit" class="btn btn-primary mt-3">Submit Idea</button>
+                        <div class="form-group mt-3">
+                            {{ form.innovation_description.label(class="form-label") }}
+                            {{ form.innovation_description(class="form-control", rows=3) }}
+                            <small class="form-text text-muted">What makes your solution innovative?</small>
+                        </div>
+                        <div class="form-group mt-3">
+                            {{ form.technical_description.label(class="form-label") }}
+                            {{ form.technical_description(class="form-control", rows=3) }}
+                            <small class="form-text text-muted">Describe the technical aspects of your solution.</small>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    {{ form.project_category.label(class="form-label") }}
+                                    {{ form.project_category(class="form-control") }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Financial Details -->
+                        <h4 class="mt-4 mb-3">Financial Details</h4>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.estimated_project_cost.label(class="form-label") }}
+                                    {{ form.estimated_project_cost(class="form-control") }}
+                                    <small class="form-text text-muted">Enter the amount in INR.</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group mt-3">
+                            {{ form.fund_requirement_description.label(class="form-label") }}
+                            {{ form.fund_requirement_description(class="form-control", rows=3) }}
+                            <small class="form-text text-muted">Provide a breakdown of how the funds will be utilized.</small>
+                        </div>
+
+                        <!-- Additional Information -->
+                        <h4 class="mt-4 mb-3">Additional Information</h4>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    {{ form.current_stage.label(class="form-label") }}
+                                    {{ form.current_stage(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    {{ form.completion_time.label(class="form-label") }}
+                                    {{ form.completion_time(class="form-control") }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.mentor_name.label(class="form-label") }}
+                                    {{ form.mentor_name(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.mentor_designation.label(class="form-label") }}
+                                    {{ form.mentor_designation(class="form-control") }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Team Members -->
+                        <h4 class="mt-4 mb-3">Team Members</h4>
+                        <div id="team-members">
+                            {% for member in form.team_members %}
+                                <div class="form-group mt-2">
+                                    {{ member.label(class="form-label") }}
+                                    {{ member(class="form-control") }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <button type="button" class="btn btn-outline-primary mt-2" onclick="addTeamMember()">Add Team Member</button>
+
+                        <!-- Supporting Documents -->
+                        <h4 class="mt-4 mb-3">Supporting Documents</h4>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    {{ form.proposal_document.label(class="form-label") }}
+                                    {{ form.proposal_document(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    {{ form.presentation.label(class="form-label") }}
+                                    {{ form.presentation(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    {{ form.additional_documents.label(class="form-label") }}
+                                    {{ form.additional_documents(class="form-control") }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary mt-4">Submit Proposal</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+function addTeamMember() {
+    const teamMembers = document.getElementById('team-members');
+    const memberCount = teamMembers.children.length;
+    
+    if (memberCount < 5) {
+        const div = document.createElement('div');
+        div.className = 'form-group mt-2';
+        div.innerHTML = `
+            <label class="form-label">Team Member ${memberCount + 1}</label>
+            <input type="text" name="team_members-${memberCount}" class="form-control" maxlength="100">
+        `;
+        teamMembers.appendChild(div);
+    } else {
+        alert('Maximum 5 team members allowed');
+    }
+}
+</script>
 {% endblock %}

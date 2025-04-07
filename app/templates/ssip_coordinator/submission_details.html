@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3><i class="fas fa-file-alt"></i> SSIP Submission Details</h3>
+                    <a href="{{ url_for('ssip_coordinator.view_submissions') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to List
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h4>Project Information</h4>
+                            <table class="table">
+                                <tr>
+                                    <th width="200">Project Title</th>
+                                    <td>{{ submission.project_title }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Category</th>
+                                    <td>{{ submission.project_category }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Stage</th>
+                                    <td>{{ submission.current_stage }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Project Description</th>
+                                    <td>{{ submission.project_description }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Innovation Details</th>
+                                    <td>{{ submission.innovation_details }}</td>
+                                </tr>
+                            </table>
+
+                            <h4 class="mt-4">Team Information</h4>
+                            <table class="table">
+                                <tr>
+                                    <th width="200">Student Name</th>
+                                    <td>{{ submission.student_name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Department</th>
+                                    <td>{{ submission.department.name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Team Members</th>
+                                    <td>{{ submission.team_members }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Guide Name</th>
+                                    <td>{{ submission.guide_name }}</td>
+                                </tr>
+                            </table>
+
+                            <h4 class="mt-4">Financial Details</h4>
+                            <table class="table">
+                                <tr>
+                                    <th width="200">Required Amount</th>
+                                    <td>₹{{ submission.required_amount }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Fund Utilization</th>
+                                    <td>{{ submission.fund_utilization }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4 class="mb-0">Review Submission</h4>
+                                </div>
+                                <div class="card-body">
+                                    <form id="statusForm">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <div class="mb-3">
+                                            <label class="form-label">Update Status</label>
+                                            <select name="status" class="form-select" id="status-select" required>
+                                                <option value="">Select Status</option>
+                                                <option value="approved">Approve</option>
+                                                <option value="rejected">Reject</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="needs-revision" name="needs_revision">
+                                                <label class="form-check-label" for="needs-revision">
+                                                    Needs revision (send back to student)
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Remarks</label>
+                                            <textarea name="remarks" id="remarks" class="form-control" rows="4" placeholder="Add your review comments here...">{{ submission.remarks or '' }}</textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Submit Review</button>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <div class="card mt-3">
+                                <div class="card-header">
+                                    <h4 class="mb-0">Submission Info</h4>
+                                </div>
+                                <div class="card-body">
+                                    <p><strong>Submitted On:</strong><br>
+                                    {{ submission.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                                    
+                                    <p><strong>Last Updated:</strong><br>
+                                    {{ submission.updated_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                                    
+                                    <p><strong>Current Status:</strong><br>
+                                    <span class="badge {% if submission.status == 'approved' %}bg-success{% elif submission.status == 'rejected' %}bg-danger{% else %}bg-warning{% endif %}">
+                                        {{ submission.status|title }}
+                                    </span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
+<script>
+document.getElementById('statusForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    try {
+        const response = await fetch('{{ url_for("ssip_coordinator.update_submission_status", id=submission.id) }}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': formData.get('csrf_token'),
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            Swal.fire({
+                title: 'Success!',
+                text: data.message,
+                icon: 'success'
+            }).then(() => {
+                window.location.reload();
+            });
+        } else {
+            throw new Error(data.error || 'Failed to update status');
+        }
+    } catch (error) {
+        Swal.fire({
+            title: 'Error!',
+            text: error.message,
+            icon: 'error'
+        });
+    }
+
+});
+</script>
+{% endblock %}
+{% endblock %}

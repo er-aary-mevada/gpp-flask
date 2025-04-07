@@ -1,0 +1,497 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+<div class="librarian-dashboard">
+    <!-- Top Stats Cards -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-user-graduate"></i>
+            </div>
+            <div class="stat-content">
+                <h3>Total Students</h3>
+                <div class="stat-value">{{ stats.total_students }}</div>
+            </div>
+            <div class="stat-chart">
+                <div class="chart-bar"></div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-chalkboard-teacher"></i>
+            </div>
+            <div class="stat-content">
+                <h3>Total Staff</h3>
+                <div class="stat-value">{{ stats.total_staff }}</div>
+            </div>
+            <div class="stat-chart">
+                <div class="chart-bar"></div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-book"></i>
+            </div>
+            <div class="stat-content">
+                <h3>Total Books</h3>
+                <div class="stat-value">2,450</div>
+            </div>
+            <div class="stat-chart">
+                <div class="chart-bar"></div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-book-reader"></i>
+            </div>
+            <div class="stat-content">
+                <h3>Books Issued</h3>
+                <div class="stat-value">184</div>
+            </div>
+            <div class="stat-chart">
+                <div class="chart-bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="content-grid">
+        <!-- Recent Activities -->
+        <div class="activity-section">
+            <div class="section-header">
+                <h2>Recent Activities</h2>
+                <div class="header-actions">
+                    <button class="btn-filter">
+                        <i class="fas fa-filter"></i> Filter
+                    </button>
+                    <button class="btn-refresh">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="activity-list">
+                <div class="activity-item">
+                    <div class="activity-icon issued">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                    <div class="activity-details">
+                        <h4>Book Issued</h4>
+                        <p>Data Structures and Algorithms</p>
+                        <span class="activity-meta">To: John Doe • 2 hours ago</span>
+                    </div>
+                    <div class="activity-status">
+                        <span class="badge issued">Issued</span>
+                    </div>
+                </div>
+
+                <div class="activity-item">
+                    <div class="activity-icon returned">
+                        <i class="fas fa-arrow-left"></i>
+                    </div>
+                    <div class="activity-details">
+                        <h4>Book Returned</h4>
+                        <p>Computer Networks</p>
+                        <span class="activity-meta">By: Jane Smith • 3 hours ago</span>
+                    </div>
+                    <div class="activity-status">
+                        <span class="badge returned">Returned</span>
+                    </div>
+                </div>
+
+                <div class="activity-item">
+                    <div class="activity-icon added">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                    <div class="activity-details">
+                        <h4>New Book Added</h4>
+                        <p>Machine Learning Basics</p>
+                        <span class="activity-meta">Added by: Admin • 5 hours ago</span>
+                    </div>
+                    <div class="activity-status">
+                        <span class="badge added">Added</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions and Info -->
+        <div class="side-section">
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <h3>Quick Actions</h3>
+                <div class="actions-grid">
+                    <a href="{{ url_for('main.issue_book') }}" class="action-card">
+                        <i class="fas fa-arrow-right"></i>
+                        <span>Issue Book</span>
+                    </a>
+                    <a href="{{ url_for('main.return_book') }}" class="action-card">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>Return Book</span>
+                    </a>
+                    <a href="{{ url_for('main.add_book') }}" class="action-card">
+                        <i class="fas fa-plus"></i>
+                        <span>Add Book</span>
+                    </a>
+                    <a href="{{ url_for('main.manage_books') }}" class="action-card">
+                        <i class="fas fa-cog"></i>
+                        <span>Manage Books</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Due Returns -->
+            <div class="due-returns">
+                <h3>Due Returns Today</h3>
+                <div class="due-list">
+                    <div class="due-item">
+                        <div class="due-info">
+                            <h4>Operating Systems</h4>
+                            <p>Student: Mike Johnson</p>
+                        </div>
+                        <button class="btn-remind">
+                            <i class="fas fa-bell"></i> Remind
+                        </button>
+                    </div>
+                    <div class="due-item">
+                        <div class="due-info">
+                            <h4>Web Development</h4>
+                            <p>Student: Sarah Williams</p>
+                        </div>
+                        <button class="btn-remind">
+                            <i class="fas fa-bell"></i> Remind
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.librarian-dashboard {
+    padding: 2rem;
+    background: #f7f9fc;
+}
+
+/* Stats Row */
+.stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-right: 1rem;
+    background: #f0f7ff;
+    color: #2563eb;
+}
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-content h3 {
+    margin: 0;
+    font-size: 0.875rem;
+    color: #64748b;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-top: 0.25rem;
+}
+
+.stat-chart {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: #f1f5f9;
+}
+
+.chart-bar {
+    height: 100%;
+    width: 70%;
+    background: linear-gradient(90deg, #3b82f6, #2563eb);
+    border-radius: 0 2px 2px 0;
+}
+
+/* Content Grid */
+.content-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+}
+
+/* Activity Section */
+.activity-section {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    overflow: hidden;
+}
+
+.section-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.section-header h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: #1e293b;
+}
+
+.header-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.btn-filter, .btn-refresh {
+    padding: 0.5rem 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: white;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-filter:hover, .btn-refresh:hover {
+    background: #f8fafc;
+    color: #2563eb;
+}
+
+.activity-list {
+    padding: 1.5rem;
+}
+
+.activity-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border-radius: 12px;
+    background: #f8fafc;
+    margin-bottom: 1rem;
+}
+
+.activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+}
+
+.activity-icon.issued {
+    background: rgba(37, 99, 235, 0.1);
+    color: #2563eb;
+}
+
+.activity-icon.returned {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.activity-icon.added {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+}
+
+.activity-details {
+    flex: 1;
+}
+
+.activity-details h4 {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #1e293b;
+}
+
+.activity-details p {
+    margin: 0.25rem 0;
+    font-size: 0.875rem;
+    color: #64748b;
+}
+
+.activity-meta {
+    font-size: 0.75rem;
+    color: #94a3b8;
+}
+
+.badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.badge.issued {
+    background: rgba(37, 99, 235, 0.1);
+    color: #2563eb;
+}
+
+.badge.returned {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.badge.added {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+}
+
+/* Side Section */
+.side-section > div {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.side-section h3 {
+    margin: 0 0 1rem;
+    font-size: 1.1rem;
+    color: #1e293b;
+}
+
+.actions-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.action-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.25rem;
+    background: #f8fafc;
+    border-radius: 12px;
+    text-decoration: none;
+    color: #1e293b;
+    transition: all 0.2s;
+}
+
+.action-card:hover {
+    transform: translateY(-2px);
+    background: #f1f5f9;
+}
+
+.action-card i {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: #2563eb;
+}
+
+.action-card span {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.due-list {
+    display: grid;
+    gap: 1rem;
+}
+
+.due-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 12px;
+}
+
+.due-info h4 {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #1e293b;
+}
+
+.due-info p {
+    margin: 0.25rem 0 0;
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+.btn-remind {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 8px;
+    background: #2563eb;
+    color: white;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-remind:hover {
+    background: #1d4ed8;
+}
+
+@media (max-width: 1024px) {
+    .content-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .librarian-dashboard {
+        padding: 1rem;
+    }
+    
+    .stats-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .actions-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .activity-item {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .activity-icon {
+        margin: 0 auto 1rem;
+    }
+    
+    .activity-status {
+        margin-top: 1rem;
+    }
+}
+</style>
+{% endblock %}

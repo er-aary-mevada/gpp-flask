@@ -173,6 +173,59 @@ def create_sample_projects():
         print("Sample projects created successfully!")
         return True
 
+def create_ssip_lecturers():
+    """Create SSIP handling lecturers - one for department level and one for college level."""
+    with app.app_context():
+        # Get lecturer role
+        lecturer_role = Role.query.filter_by(name='lecturer').first()
+        if not lecturer_role:
+            lecturer_role = Role(name='lecturer', description='Lecturer')
+            db.session.add(lecturer_role)
+            db.session.commit()
+
+        # Get Computer Engineering department
+        comp_dept = Department.query.filter_by(name='Computer Engineering').first()
+        if not comp_dept:
+            print("Error: Computer Engineering department not found")
+            return False
+
+        # Create department level SSIP coordinator
+        dept_coordinator = User.query.filter_by(email='dept.ssip@gppalanpur.in').first()
+        if not dept_coordinator:
+            dept_coordinator = User(
+                email='dept.ssip@gppalanpur.in',
+                password=hash_password('ssip123'),
+                active=True,
+                is_approved=True,
+                first_name='Department',
+                last_name='SSIP Coordinator',
+                department_id=comp_dept.id,
+                confirmed_at=datetime.utcnow(),
+                roles=[lecturer_role]
+            )
+            db.session.add(dept_coordinator)
+
+        # Create college level SSIP coordinator
+        college_coordinator = User.query.filter_by(email='college.ssip@gppalanpur.in').first()
+        if not college_coordinator:
+            college_coordinator = User(
+                email='college.ssip@gppalanpur.in',
+                password=hash_password('ssip123'),
+                active=True,
+                is_approved=True,
+                first_name='College',
+                last_name='SSIP Coordinator',
+                confirmed_at=datetime.utcnow(),
+                roles=[lecturer_role]
+            )
+            db.session.add(college_coordinator)
+
+        db.session.commit()
+        print("SSIP coordinators created successfully!")
+        print("Department SSIP Coordinator - Email: dept.ssip@gppalanpur.in, Password: ssip123")
+        print("College SSIP Coordinator - Email: college.ssip@gppalanpur.in, Password: ssip123")
+        return True
+
 def init_all():
     """Initialize everything in the correct order."""
     print("Initializing database...")
@@ -180,6 +233,7 @@ def init_all():
     if create_admin():
         create_departments()
         create_sample_projects()
+        create_ssip_lecturers()
     print("Database initialization complete!")
 
 if __name__ == '__main__':
