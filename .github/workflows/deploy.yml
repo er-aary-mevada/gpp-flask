@@ -64,7 +64,7 @@ jobs:
             
             # Initialize the database
             echo "Initializing database..."
-            docker compose exec -T app python init_db.py --all
+            docker compose exec -T web python init_db.py --all
             
             # Clean up old images and volumes
             docker image prune -f
