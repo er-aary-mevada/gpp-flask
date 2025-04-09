@@ -1,0 +1,64 @@
+name: Deploy Flask App to Production
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: unnecessary
+          if_key_exists: replace
+
+      - name: Add SSH known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H server.gppalanpur.in >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+      - name: Copy files to server
+        env:
+          REMOTE_HOST: milav@server.gppalanpur.in
+        run: |
+          # Clean up and recreate deployment directory on server
+          ssh $REMOTE_HOST '
+            rm -rf ~/gpp-flask/*
+            mkdir -p ~/gpp-flask
+          '
+          
+          # Copy necessary files
+          scp docker-compose.yml $REMOTE_HOST:~/gpp-flask/
+          scp Dockerfile $REMOTE_HOST:~/gpp-flask/
+          scp nginx.conf $REMOTE_HOST:~/gpp-flask/
+          scp requirements.txt $REMOTE_HOST:~/gpp-flask/
+          
+          # Copy application code
+          rsync -av --delete --exclude='.git' --exclude='__pycache__' --exclude='*.pyc' . $REMOTE_HOST:~/gpp-flask/
+
+      - name: Deploy
+        env:
+          REMOTE_HOST: milav@server.gppalanpur.in
+        run: |
+          ssh $REMOTE_HOST '
+            cd ~/gpp-flask
+            
+            # Stop and remove containers, networks, and volumes
+            docker compose down -v || true
+            
+            # Build and start the containers
+            docker compose build --no-cache
+            docker compose up -d
+            
+            # Clean up old images and volumes
+            docker image prune -f
+            docker volume prune -f
+          ' 
