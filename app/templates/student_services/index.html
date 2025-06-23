@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+<div class="container">
+    <h1 class="mb-4">Student Services</h1>
+    
+    <div class="row">
+        <!-- Fee Payment -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-money-bill"></i> Fee Payment</h5>
+                    <p class="card-text">Pay your semester fees, hostel fees, and other payments online.</p>
+                    <a href="{{ url_for('student_services.fee_payment') }}" class="btn btn-primary">Pay Fees</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Document Requests -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-file-alt"></i> Document Requests</h5>
+                    <p class="card-text">Request bonafide certificates, transcripts, and other documents.</p>
+                    <a href="{{ url_for('student_services.document_request') }}" class="btn btn-primary">Request Documents</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grievance Portal -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-comment-alt"></i> Grievance Portal</h5>
+                    <p class="card-text">Submit and track your grievances or complaints.</p>
+                    <a href="{{ url_for('student_services.grievance') }}" class="btn btn-primary">Submit Grievance</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Training & Placement -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-briefcase"></i> Training & Placement</h5>
+                    <p class="card-text">View job postings and apply for opportunities.</p>
+                    <a href="{{ url_for('student_services.job_postings') }}" class="btn btn-primary">View Opportunities</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,227 @@
+{% extends "student_services/layout.html" %}
+
+{% block service_content %}
+<div class="card">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h4 class="card-title mb-0">Grievance History</h4>
+            <a href="{{ url_for('student_services.grievance') }}" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus me-2"></i>New Grievance
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if grievances %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Submission Date</th>
+                        <th>Category</th>
+                        <th>Subject</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for grievance in grievances %}
+                    <tr>
+                        <td>{{ grievance.submission_date.strftime('%Y-%m-%d') }}</td>
+                        <td>{{ grievance.category|title }}</td>
+                        <td>{{ grievance.subject }}</td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if grievance.status == 'resolved' 
+                                                    else 'warning' if grievance.status == 'in_progress' 
+                                                    else 'info' if grievance.status == 'submitted'
+                                                    else 'danger' }}">
+                                {{ grievance.status|replace('_', ' ')|title }}
+                            </span>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-info" onclick="viewGrievance('{{ grievance.id }}')" data-bs-toggle="tooltip" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            {% if grievance.status == 'submitted' %}
+                            <button type="button" class="btn btn-sm btn-danger" onclick="withdrawGrievance('{{ grievance.id }}')" data-bs-toggle="tooltip" title="Withdraw Grievance">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+            <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+            <p class="text-muted">No grievances submitted yet.</p>
+            <a href="{{ url_for('student_services.grievance') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Submit Grievance
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Grievance Details Modal -->
+<div class="modal fade" id="grievanceDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Grievance Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <dl class="row">
+                    <dt class="col-sm-3">Category:</dt>
+                    <dd class="col-sm-9" id="modalCategory"></dd>
+                    
+                    <dt class="col-sm-3">Subject:</dt>
+                    <dd class="col-sm-9" id="modalSubject"></dd>
+                    
+                    <dt class="col-sm-3">Description:</dt>
+                    <dd class="col-sm-9" id="modalDescription"></dd>
+                    
+                    <dt class="col-sm-3">Submitted On:</dt>
+                    <dd class="col-sm-9" id="modalSubmissionDate"></dd>
+                    
+                    <dt class="col-sm-3">Status:</dt>
+                    <dd class="col-sm-9" id="modalStatus"></dd>
+                    
+                    <dt class="col-sm-3">Resolution:</dt>
+                    <dd class="col-sm-9" id="modalResolution"></dd>
+                    
+                    <dt class="col-sm-3">Attachment:</dt>
+                    <dd class="col-sm-9" id="modalAttachment"></dd>
+                </dl>
+
+                <!-- Resolution Timeline -->
+                <div id="resolutionTimeline" class="mt-4">
+                    <h6 class="mb-3">Resolution Timeline</h6>
+                    <div class="timeline" id="modalTimeline"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function viewGrievance(grievanceId) {
+    // Implement AJAX call to get grievance details
+    $.get(`/student-services/grievance/${grievanceId}`, function(data) {
+        $('#modalCategory').text(data.category);
+        $('#modalSubject').text(data.subject);
+        $('#modalDescription').text(data.description);
+        $('#modalSubmissionDate').text(data.submission_date);
+        $('#modalStatus').html(`<span class="badge bg-${getStatusBadgeClass(data.status)}">${data.status}</span>`);
+        $('#modalResolution').text(data.resolution || 'Pending');
+        
+        // Handle attachment
+        if (data.attachment) {
+            $('#modalAttachment').html(`<a href="${data.attachment}" target="_blank">View Attachment</a>`);
+        } else {
+            $('#modalAttachment').text('No attachment');
+        }
+        
+        // Update timeline
+        updateTimeline(data.timeline);
+        
+        $('#grievanceDetailsModal').modal('show');
+    });
+}
+
+function withdrawGrievance(grievanceId) {
+    if (confirm('Are you sure you want to withdraw this grievance? This action cannot be undone.')) {
+        // Implement AJAX call to withdraw grievance
+        $.post(`/student-services/grievance/${grievanceId}/withdraw`, function(data) {
+            if (data.success) {
+                location.reload();
+            }
+        });
+    }
+}
+
+function getStatusBadgeClass(status) {
+    switch (status) {
+        case 'resolved': return 'success';
+        case 'in_progress': return 'warning';
+        case 'submitted': return 'info';
+        default: return 'secondary';
+    }
+}
+
+function updateTimeline(timeline) {
+    const timelineContainer = $('#modalTimeline');
+    timelineContainer.empty();
+    
+    timeline.forEach(event => {
+        const timelineItem = $(`
+            <div class="timeline-item">
+                <div class="timeline-date">${event.date}</div>
+                <div class="timeline-content">
+                    <h6>${event.title}</h6>
+                    <p>${event.description}</p>
+                </div>
+            </div>
+        `);
+        timelineContainer.append(timelineItem);
+    });
+}
+
+// Initialize tooltips
+var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl)
+})
+</script>
+
+<style>
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline-item {
+    position: relative;
+    padding-bottom: 20px;
+    border-left: 2px solid #e9ecef;
+    padding-left: 20px;
+}
+
+.timeline-item:before {
+    content: '';
+    position: absolute;
+    left: -7px;
+    top: 0;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #0d6efd;
+}
+
+.timeline-date {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-bottom: 5px;
+}
+
+.timeline-content {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 4px;
+}
+
+.timeline-content h6 {
+    margin: 0 0 5px;
+}
+
+.timeline-content p {
+    margin: 0;
+    font-size: 0.875rem;
+}
+</style>
+{% endblock %}

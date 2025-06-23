@@ -25,6 +25,22 @@ def init_base():
         if not user_role:
             user_role = Role(name='user', description='Regular User')
             db.session.add(user_role)
+            
+        student_role = Role.query.filter_by(name='student').first()
+        if not student_role:
+            student_role = Role(name='student', description='Student User')
+            db.session.add(student_role)
+            
+        # Create student services specific roles
+        placement_officer_role = Role.query.filter_by(name='placement_officer').first()
+        if not placement_officer_role:
+            placement_officer_role = Role(name='placement_officer', description='Placement Officer')
+            db.session.add(placement_officer_role)
+            
+        grievance_officer_role = Role.query.filter_by(name='grievance_officer').first()
+        if not grievance_officer_role:
+            grievance_officer_role = Role(name='grievance_officer', description='Grievance Officer')
+            db.session.add(grievance_officer_role)
         
         # Create default department if it doesn't exist
         default_dept = Department.query.filter_by(name='General').first()
@@ -226,6 +242,60 @@ def create_ssip_lecturers():
         print("College SSIP Coordinator - Email: college.ssip@gppalanpur.in, Password: ssip123")
         return True
 
+def assign_student_role():
+    """Assign student role to specific users."""
+    with app.app_context():
+        student_role = Role.query.filter_by(name='student').first()
+        if not student_role:
+            print("Error: Student role not found")
+            return False
+            
+        # Assign student role to specific user
+        user = User.query.filter_by(email='aarymevada15@gmail.com').first()
+        if user and student_role not in user.roles:
+            user.roles.append(student_role)
+            db.session.commit()
+            print(f"Student role assigned to user: {user.email}")
+        return True
+
+def create_student():
+    """Create a default student user if it doesn't exist."""
+    with app.app_context():
+        # Get student role and computer department
+        student_role = Role.query.filter_by(name='student').first()
+        comp_dept = Department.query.filter_by(name='Computer Engineering').first()
+        
+        if not student_role or not comp_dept:
+            print("Error: Required role or department not found")
+            return False
+
+        # Check if student user exists
+        student_email = 'student@gppalanpur.in'
+        student_user = User.query.filter_by(email=student_email).first()
+        
+        if not student_user:
+            student_user = User(
+                email=student_email,
+                password=hash_password('student123'),
+                active=True,
+                is_approved=True,
+                first_name='Test',
+                last_name='Student',
+                department=comp_dept.name,
+                phone='9876543210',
+                confirmed_at=datetime.utcnow(),
+                roles=[student_role]
+            )
+            db.session.add(student_user)
+            db.session.commit()
+            print(f"Student user created successfully!")
+            print(f"Email: {student_email}")
+            print(f"Password: student123")
+            return True
+        else:
+            print("Student user already exists")
+            return True
+
 def init_all():
     """Initialize everything in the correct order."""
     print("Initializing database...")
@@ -234,6 +304,8 @@ def init_all():
         create_departments()
         create_sample_projects()
         create_ssip_lecturers()
+        assign_student_role()
+        create_student()
     print("Database initialization complete!")
 
 if __name__ == '__main__':

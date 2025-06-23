@@ -1,0 +1,205 @@
+{% extends "student_services/layout.html" %}
+
+{% block service_content %}
+<div class="card">
+    <div class="card-header">
+        <h4 class="card-title mb-0">Fee Payment</h4>
+    </div>
+    <div class="card-body">
+        <form method="POST" id="fee-payment-form">
+            {{ form.csrf_token }}
+            
+            <!-- Fee Type Selection -->
+            <div class="row g-4 mb-4">
+                {% for value, label in form.fee_type.choices %}
+                <div class="col-md-3">
+                    <div class="card h-100 fee-type-card {% if form.fee_type.data == value %}selected{% endif %}"
+                         onclick="selectFeeType(this, '{{ value }}')">
+                        <div class="card-body text-center">
+                            <i class="fas fa-{% if value == 'tuition' %}graduation-cap
+                                          {% elif value == 'hostel' %}home
+                                          {% elif value == 'exam' %}file-alt
+                                          {% else %}receipt{% endif %} fa-2x mb-3"></i>
+                            <h5 class="card-title">{{ label }}</h5>
+                        </div>
+                    </div>
+                    <input type="radio" name="fee_type" value="{{ value }}" class="d-none" 
+                           {% if form.fee_type.data == value %}checked{% endif %}>
+                </div>
+                {% endfor %}
+                {% if form.fee_type.errors %}
+                <div class="invalid-feedback d-block">{{ form.fee_type.errors[0] }}</div>
+                {% endif %}
+            </div>
+
+            <div class="row">
+                <!-- Amount -->
+                <div class="col-md-6 mb-3">
+                    <label for="amount" class="form-label">Amount (₹)</label>
+                    {{ form.amount(class="form-control" + (" is-invalid" if form.amount.errors else ""), id="amount", placeholder="Enter amount") }}
+                    {% if form.amount.errors %}
+                    <div class="invalid-feedback">{{ form.amount.errors[0] }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Semester -->
+                <div class="col-md-6 mb-3">
+                    <label for="semester" class="form-label">Semester</label>
+                    {{ form.semester(class="form-control" + (" is-invalid" if form.semester.errors else ""), id="semester") }}
+                    {% if form.semester.errors %}
+                    <div class="invalid-feedback">{{ form.semester.errors[0] }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Payment Methods -->
+            <div class="mb-4">
+                <label class="form-label">Payment Methods Available</label>
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <div class="card h-100 payment-method-card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-mobile-alt fa-2x mb-2 text-primary"></i>
+                                <h6 class="mb-0">UPI</h6>
+                                <small class="text-muted">Google Pay, PhonePe, etc.</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card h-100 payment-method-card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-credit-card fa-2x mb-2 text-primary"></i>
+                                <h6 class="mb-0">Cards</h6>
+                                <small class="text-muted">Credit/Debit Cards</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card h-100 payment-method-card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-university fa-2x mb-2 text-primary"></i>
+                                <h6 class="mb-0">Net Banking</h6>
+                                <small class="text-muted">All Major Banks</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card h-100 payment-method-card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-wallet fa-2x mb-2 text-primary"></i>
+                                <h6 class="mb-0">Wallets</h6>
+                                <small class="text-muted">Paytm, Amazon Pay</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Summary -->
+            <div class="card bg-light mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Payment Summary</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="mb-1"><strong>Fee Type:</strong> <span id="summary-fee-type">-</span></p>
+                            <p class="mb-1"><strong>Semester:</strong> <span id="summary-semester">-</span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1"><strong>Amount:</strong> ₹<span id="summary-amount">0.00</span></p>
+                            <p class="mb-1"><strong>Payment Mode:</strong> Online Payment</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary btn-lg" onclick="initiatePayment(event)">
+                    <i class="fas fa-lock me-2"></i>Pay Now
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    function selectFeeType(card, value) {
+        // Remove selection from all cards
+        document.querySelectorAll('.fee-type-card').forEach(c => c.classList.remove('selected'));
+        // Add selection to clicked card
+        card.classList.add('selected');
+        // Update hidden input
+        card.parentElement.querySelector('input[type="radio"]').checked = true;
+        // Update summary
+        document.getElementById('summary-fee-type').textContent = card.querySelector('.card-title').textContent;
+    }
+
+    // Update summary when values change
+    document.getElementById('amount').addEventListener('input', function() {
+        document.getElementById('summary-amount').textContent = parseFloat(this.value || 0).toFixed(2);
+    });
+
+    document.getElementById('semester').addEventListener('input', function() {
+        document.getElementById('summary-semester').textContent = this.value || '-';
+    });
+
+    function initiatePayment(event) {
+        event.preventDefault();
+        
+        const form = document.getElementById('fee-payment-form');
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        const amount = parseFloat(document.getElementById('amount').value) * 100; // Convert to paise
+        
+        const options = {
+            key: 'YOUR_RAZORPAY_KEY_ID', // Replace with actual key
+            amount: amount,
+            currency: 'INR',
+            name: 'GPP College',
+            description: 'Fee Payment',
+            image: '/static/img/logo.png',
+            handler: function(response) {
+                // Add payment_id to form and submit
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'razorpay_payment_id';
+                hiddenInput.value = response.razorpay_payment_id;
+                form.appendChild(hiddenInput);
+                form.submit();
+            },
+            prefill: {
+                name: '{{ current_user.name }}',
+                email: '{{ current_user.email }}',
+                contact: '{{ current_user.phone_number if current_user.phone_number else "" }}'
+            },
+            theme: {
+                color: '#0d6efd'
+            }
+        };
+
+        const rzp = new Razorpay(options);
+        rzp.open();
+    }
+</script>
+<style>
+    .fee-type-card {
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .fee-type-card:hover {
+        transform: translateY(-5px);
+    }
+    .fee-type-card.selected {
+        border-color: #0d6efd;
+        background-color: #f8f9ff;
+    }
+    .payment-method-card {
+        background-color: #f8f9fa;
+    }
+</style>
+{% endblock %}

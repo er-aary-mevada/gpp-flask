@@ -1,0 +1,113 @@
+{% extends "student_services/layout.html" %}
+
+{% block service_content %}
+<div class="card">
+    <div class="card-header">
+        <h4 class="card-title mb-0">Request Documents</h4>
+    </div>
+    <div class="card-body">
+        <form method="POST" class="needs-validation" novalidate>
+            {{ form.hidden_tag() }}
+            
+            <div class="mb-3">
+                {{ form.document_type.label(class="form-label") }}
+                {{ form.document_type(class="form-select") }}
+                {% if form.document_type.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.document_type.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.purpose.label(class="form-label") }}
+                {{ form.purpose(class="form-control", rows="3", placeholder="Explain why you need this document") }}
+                {% if form.purpose.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.purpose.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.additional_info.label(class="form-label") }}
+                {{ form.additional_info(class="form-control", rows="2", placeholder="Any additional information that might be helpful") }}
+                {% if form.additional_info.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.additional_info.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="alert alert-info">
+                <h5><i class="fas fa-info-circle me-2"></i>Important Notes:</h5>
+                <ul class="mb-0">
+                    <li>Documents will be processed within 2-3 working days</li>
+                    <li>You will receive an email notification when your document is ready</li>
+                    <li>Original documents must be collected in person from the admin office</li>
+                    <li>Please bring your college ID card when collecting documents</li>
+                </ul>
+            </div>
+
+            <div class="text-end">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-paper-plane me-2"></i>Submit Request
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Document Types Information -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h5 class="card-title mb-0">Document Information</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Document Type</th>
+                        <th>Processing Time</th>
+                        <th>Fee (if any)</th>
+                        <th>Requirements</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Bonafide Certificate</td>
+                        <td>1-2 working days</td>
+                        <td>Free</td>
+                        <td>Student ID Card</td>
+                    </tr>
+                    <tr>
+                        <td>Transcript</td>
+                        <td>3-4 working days</td>
+                        <td>₹100 per copy</td>
+                        <td>Previous semester marksheets</td>
+                    </tr>
+                    <tr>
+                        <td>Character Certificate</td>
+                        <td>2-3 working days</td>
+                        <td>Free</td>
+                        <td>No pending disciplinary actions</td>
+                    </tr>
+                    <tr>
+                        <td>Migration Certificate</td>
+                        <td>4-5 working days</td>
+                        <td>₹200</td>
+                        <td>Completion of all academic requirements</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

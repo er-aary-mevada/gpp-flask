@@ -1,0 +1,119 @@
+{% extends "student_services/layout.html" %}
+
+{% block service_content %}
+<div class="card">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h4 class="card-title mb-0">Document Request History</h4>
+            <a href="{{ url_for('student_services.document_request') }}" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus me-2"></i>New Request
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if requests %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Request Date</th>
+                        <th>Document Type</th>
+                        <th>Status</th>
+                        <th>Issue Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for request in requests %}
+                    <tr>
+                        <td>{{ request.request_date.strftime('%Y-%m-%d') }}</td>
+                        <td>{{ request.document_type|title }}</td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if request.status == 'ready' 
+                                                    else 'warning' if request.status == 'pending' 
+                                                    else 'danger' }}">
+                                {{ request.status|title }}
+                            </span>
+                        </td>
+                        <td>{{ request.issued_date.strftime('%Y-%m-%d') if request.issued_date else 'N/A' }}</td>
+                        <td>
+                            {% if request.status == 'ready' %}
+                            <a href="#" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download Document">
+                                <i class="fas fa-download"></i>
+                            </a>
+                            {% endif %}
+                            {% if request.status == 'pending' %}
+                            <button type="button" class="btn btn-sm btn-danger" onclick="cancelRequest('{{ request.id }}')" data-bs-toggle="tooltip" title="Cancel Request">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            {% endif %}
+                            <button type="button" class="btn btn-sm btn-info" onclick="viewDetails('{{ request.id }}')" data-bs-toggle="tooltip" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+            <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+            <p class="text-muted">No document requests found.</p>
+            <a href="{{ url_for('student_services.document_request') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Request Document
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Document Request Details Modal -->
+<div class="modal fade" id="requestDetailsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Request Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <dl class="row">
+                    <dt class="col-sm-4">Document Type:</dt>
+                    <dd class="col-sm-8" id="modalDocType"></dd>
+                    
+                    <dt class="col-sm-4">Request Date:</dt>
+                    <dd class="col-sm-8" id="modalRequestDate"></dd>
+                    
+                    <dt class="col-sm-4">Purpose:</dt>
+                    <dd class="col-sm-8" id="modalPurpose"></dd>
+                    
+                    <dt class="col-sm-4">Status:</dt>
+                    <dd class="col-sm-8" id="modalStatus"></dd>
+                    
+                    <dt class="col-sm-4">Issue Date:</dt>
+                    <dd class="col-sm-8" id="modalIssueDate"></dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function viewDetails(requestId) {
+    // Implement modal population with AJAX
+    $('#requestDetailsModal').modal('show');
+}
+
+function cancelRequest(requestId) {
+    if (confirm('Are you sure you want to cancel this request?')) {
+        // Implement cancellation with AJAX
+    }
+}
+
+// Initialize tooltips
+var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl)
+})
+</script>
+{% endblock %}

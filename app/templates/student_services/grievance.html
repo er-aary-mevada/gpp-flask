@@ -1,0 +1,126 @@
+{% extends "student_services/layout.html" %}
+
+{% block service_content %}
+<div class="card">
+    <div class="card-header">
+        <h4 class="card-title mb-0">Submit Grievance</h4>
+    </div>
+    <div class="card-body">
+        <form method="POST" class="needs-validation" novalidate enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            
+            <div class="mb-3">
+                {{ form.category.label(class="form-label") }}
+                {{ form.category(class="form-select") }}
+                {% if form.category.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.category.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.subject.label(class="form-label") }}
+                {{ form.subject(class="form-control", placeholder="Brief subject of your grievance") }}
+                {% if form.subject.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.subject.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.description.label(class="form-label") }}
+                {{ form.description(class="form-control", rows="5", placeholder="Provide detailed description of your grievance") }}
+                {% if form.description.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.description.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.attachment.label(class="form-label") }}
+                {{ form.attachment(class="form-control") }}
+                {% if form.attachment.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.attachment.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+                <small class="text-muted">Supported formats: PDF, JPG, PNG (Max size: 5MB)</small>
+            </div>
+
+            <div class="mb-3">
+                <div class="form-check">
+                    {{ form.is_anonymous(class="form-check-input") }}
+                    {{ form.is_anonymous.label(class="form-check-label") }}
+                </div>
+                <small class="text-muted">Your identity will be hidden from the resolution team.</small>
+            </div>
+
+            <div class="alert alert-info">
+                <h5><i class="fas fa-info-circle me-2"></i>Important Information:</h5>
+                <ul class="mb-0">
+                    <li>All grievances are treated with strict confidentiality</li>
+                    <li>You will receive updates on your registered email</li>
+                    <li>Typical resolution time is 7-10 working days</li>
+                    <li>For urgent matters, please contact your department HOD directly</li>
+                </ul>
+            </div>
+
+            <div class="text-end">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-paper-plane me-2"></i>Submit Grievance
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Grievance Guidelines -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h5 class="card-title mb-0">Grievance Resolution Process</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3 text-center mb-3">
+                <div class="border rounded p-3">
+                    <i class="fas fa-file-alt fa-2x text-primary mb-2"></i>
+                    <h6>Step 1</h6>
+                    <p class="mb-0 small">Submit Grievance</p>
+                </div>
+            </div>
+            <div class="col-md-3 text-center mb-3">
+                <div class="border rounded p-3">
+                    <i class="fas fa-user-check fa-2x text-info mb-2"></i>
+                    <h6>Step 2</h6>
+                    <p class="mb-0 small">Verification & Assignment</p>
+                </div>
+            </div>
+            <div class="col-md-3 text-center mb-3">
+                <div class="border rounded p-3">
+                    <i class="fas fa-tasks fa-2x text-warning mb-2"></i>
+                    <h6>Step 3</h6>
+                    <p class="mb-0 small">Investigation & Action</p>
+                </div>
+            </div>
+            <div class="col-md-3 text-center mb-3">
+                <div class="border rounded p-3">
+                    <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                    <h6>Step 4</h6>
+                    <p class="mb-0 small">Resolution & Closure</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

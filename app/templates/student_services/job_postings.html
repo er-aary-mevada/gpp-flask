@@ -1,0 +1,256 @@
+{% extends "student_services/layout.html" %}
+
+{% block service_content %}
+<div class="row">
+    <!-- Active Job Listings -->
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="card-title mb-0">Current Opportunities</h4>
+                    <div>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="searchJobs" placeholder="Search jobs...">
+                            <button class="btn btn-outline-secondary" type="button">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if postings %}
+                <div class="job-listings">
+                    {% for posting in postings %}
+                    <div class="job-item mb-4">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h5 class="mb-1">{{ posting.position }}</h5>
+                                <h6 class="text-primary mb-2">{{ posting.company_name }}</h6>
+                                <div class="mb-2">
+                                    <span class="badge bg-info me-2">
+                                        <i class="fas fa-map-marker-alt me-1"></i>{{ posting.job_location }}
+                                    </span>
+                                    <span class="badge bg-secondary me-2">
+                                        <i class="fas fa-briefcase me-1"></i>{{ posting.job_type }}
+                                    </span>
+                                    {% if posting.salary_range %}
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-money-bill-wave me-1"></i>{{ posting.salary_range }}
+                                    </span>
+                                    {% endif %}
+                                </div>
+                                <p class="text-muted small mb-2">
+                                    <i class="fas fa-clock me-1"></i>Posted: {{ posting.posting_date.strftime('%Y-%m-%d') }}
+                                    <span class="mx-2">|</span>
+                                    <i class="fas fa-calendar-alt me-1"></i>Deadline: {{ posting.application_deadline.strftime('%Y-%m-%d') }}
+                                </p>
+                            </div>
+                            <div class="text-end">
+                                <button type="button" class="btn btn-primary" onclick="viewJobDetails('{{ posting.id }}')">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-briefcase fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">No job postings available at the moment.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Stats -->
+    <div class="col-md-4">
+        <!-- Job Filters -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Filters</h5>
+            </div>
+            <div class="card-body">
+                <form id="jobFilters">
+                    <div class="mb-3">
+                        <label class="form-label">Job Type</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="full-time" id="fullTime">
+                            <label class="form-check-label" for="fullTime">Full Time</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="internship" id="internship">
+                            <label class="form-check-label" for="internship">Internship</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="part-time" id="partTime">
+                            <label class="form-check-label" for="partTime">Part Time</label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Location</label>
+                        <select class="form-select" id="locationFilter">
+                            <option value="">All Locations</option>
+                            <option value="ahmedabad">Ahmedabad</option>
+                            <option value="gandhinagar">Gandhinagar</option>
+                            <option value="surat">Surat</option>
+                            <option value="remote">Remote</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">
+                        Apply Filters
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Quick Stats</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="border rounded p-3 text-center">
+                            <h6 class="text-muted mb-1">Active Jobs</h6>
+                            <h4 class="mb-0">{{ postings|length if postings else 0 }}</h4>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="border rounded p-3 text-center">
+                            <h6 class="text-muted mb-1">Applications</h6>
+                            <h4 class="mb-0">{{ current_user.placement_applications|length }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Job Details Modal -->
+<div class="modal fade" id="jobDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Job Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <h4 id="modalJobTitle"></h4>
+                <h5 class="text-primary" id="modalCompanyName"></h5>
+                
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <h6>Job Details</h6>
+                        <dl class="row">
+                            <dt class="col-sm-4">Location:</dt>
+                            <dd class="col-sm-8" id="modalLocation"></dd>
+                            
+                            <dt class="col-sm-4">Job Type:</dt>
+                            <dd class="col-sm-8" id="modalJobType"></dd>
+                            
+                            <dt class="col-sm-4">Salary Range:</dt>
+                            <dd class="col-sm-8" id="modalSalary"></dd>
+                        </dl>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Requirements</h6>
+                        <dl class="row">
+                            <dt class="col-sm-4">Required CGPA:</dt>
+                            <dd class="col-sm-8" id="modalCGPA"></dd>
+                            
+                            <dt class="col-sm-4">Deadline:</dt>
+                            <dd class="col-sm-8" id="modalDeadline"></dd>
+                            
+                            <dt class="col-sm-4">Departments:</dt>
+                            <dd class="col-sm-8" id="modalDepartments"></dd>
+                        </dl>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <h6>Job Description</h6>
+                    <p id="modalDescription"></p>
+                </div>
+
+                <div class="mt-4">
+                    <h6>Requirements & Qualifications</h6>
+                    <div id="modalRequirements"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="applyForJob()">Apply Now</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function viewJobDetails(jobId) {
+    // Implement AJAX call to get job details
+    $.get(`/student-services/job/${jobId}`, function(data) {
+        $('#modalJobTitle').text(data.position);
+        $('#modalCompanyName').text(data.company_name);
+        $('#modalLocation').text(data.job_location);
+        $('#modalJobType').text(data.job_type);
+        $('#modalSalary').text(data.salary_range || 'Not specified');
+        $('#modalCGPA').text(data.required_cgpa || 'Not specified');
+        $('#modalDeadline').text(new Date(data.application_deadline).toLocaleDateString());
+        $('#modalDepartments').text(data.eligible_departments);
+        $('#modalDescription').text(data.description);
+        
+        // Format requirements as a list
+        const requirements = data.requirements.split('\n').map(req => `<li>${req}</li>`).join('');
+        $('#modalRequirements').html(`<ul>${requirements}</ul>`);
+        
+        $('#jobDetailsModal').modal('show');
+    });
+}
+
+function applyForJob() {
+    // Redirect to application form
+    window.location.href = `/student-services/apply-job/${currentJobId}`;
+}
+
+// Job search functionality
+$('#searchJobs').on('input', function() {
+    const searchTerm = $(this).val().toLowerCase();
+    $('.job-item').each(function() {
+        const jobText = $(this).text().toLowerCase();
+        $(this).toggle(jobText.includes(searchTerm));
+    });
+});
+
+// Filter form submission
+$('#jobFilters').on('submit', function(e) {
+    e.preventDefault();
+    // Implement filter logic
+});
+</script>
+
+<style>
+.job-item {
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+.job-item:hover {
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    border-color: #0d6efd;
+}
+
+.badge {
+    font-weight: normal;
+    padding: 6px 10px;
+}
+</style>
+{% endblock %}

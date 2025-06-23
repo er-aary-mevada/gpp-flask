@@ -1,0 +1,275 @@
+{% extends "student_services/layout.html" %}
+
+{% block service_content %}
+<div class="card">
+    <div class="card-header">
+        <h4 class="card-title mb-0">Application History</h4>
+    </div>
+    <div class="card-body">
+        {% if applications %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Company</th>
+                        <th>Position</th>
+                        <th>Applied On</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for application in applications %}
+                    <tr>
+                        <td>{{ application.company_name }}</td>
+                        <td>{{ application.position }}</td>
+                        <td>{{ application.application_date.strftime('%Y-%m-%d') }}</td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if application.status == 'selected'
+                                                    else 'warning' if application.status == 'shortlisted'
+                                                    else 'info' if application.status == 'applied'
+                                                    else 'danger' }}">
+                                {{ application.status|title }}
+                            </span>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-info" onclick="viewApplication('{{ application.id }}')" data-bs-toggle="tooltip" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            {% if application.status == 'applied' %}
+                            <button type="button" class="btn btn-sm btn-danger" onclick="withdrawApplication('{{ application.id }}')" data-bs-toggle="tooltip" title="Withdraw Application">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+            <i class="fas fa-briefcase fa-3x text-muted mb-3"></i>
+            <p class="text-muted">No applications submitted yet.</p>
+            <a href="{{ url_for('student_services.job_postings') }}" class="btn btn-primary">
+                <i class="fas fa-search me-2"></i>Browse Jobs
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Application Status Summary -->
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="fas fa-paper-plane fa-2x text-info mb-2"></i>
+                <h5>Applied</h5>
+                <h3>{{ applications|selectattr('status', 'equalto', 'applied')|list|length }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="fas fa-list-alt fa-2x text-warning mb-2"></i>
+                <h5>Shortlisted</h5>
+                <h3>{{ applications|selectattr('status', 'equalto', 'shortlisted')|list|length }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="fas fa-user-tie fa-2x text-primary mb-2"></i>
+                <h5>Interviewed</h5>
+                <h3>{{ applications|selectattr('status', 'equalto', 'interviewed')|list|length }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                <h5>Selected</h5>
+                <h3>{{ applications|selectattr('status', 'equalto', 'selected')|list|length }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Application Details Modal -->
+<div class="modal fade" id="applicationDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Application Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Job Details</h6>
+                        <dl class="row">
+                            <dt class="col-sm-4">Company:</dt>
+                            <dd class="col-sm-8" id="modalCompany"></dd>
+                            
+                            <dt class="col-sm-4">Position:</dt>
+                            <dd class="col-sm-8" id="modalPosition"></dd>
+                            
+                            <dt class="col-sm-4">Applied On:</dt>
+                            <dd class="col-sm-8" id="modalAppliedDate"></dd>
+                        </dl>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Application Status</h6>
+                        <dl class="row">
+                            <dt class="col-sm-4">Status:</dt>
+                            <dd class="col-sm-8" id="modalStatus"></dd>
+                            
+                            <dt class="col-sm-4">Interview Date:</dt>
+                            <dd class="col-sm-8" id="modalInterviewDate"></dd>
+                            
+                            <dt class="col-sm-4">Documents:</dt>
+                            <dd class="col-sm-8" id="modalDocuments"></dd>
+                        </dl>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <h6>Application Timeline</h6>
+                    <div class="timeline" id="modalTimeline"></div>
+                </div>
+
+                <div class="mt-4">
+                    <h6>Remarks</h6>
+                    <p id="modalRemarks"></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a href="#" id="modalResumeLink" class="btn btn-primary" target="_blank">
+                    <i class="fas fa-file-pdf me-2"></i>View Resume
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function viewApplication(applicationId) {
+    // Implement AJAX call to get application details
+    $.get(`/student-services/application/${applicationId}`, function(data) {
+        $('#modalCompany').text(data.company_name);
+        $('#modalPosition').text(data.position);
+        $('#modalAppliedDate').text(new Date(data.application_date).toLocaleDateString());
+        $('#modalStatus').html(`<span class="badge bg-${getStatusBadgeClass(data.status)}">${data.status}</span>`);
+        $('#modalInterviewDate').text(data.interview_date ? new Date(data.interview_date).toLocaleDateString() : 'Not scheduled');
+        $('#modalRemarks').text(data.remarks || 'No remarks available');
+        $('#modalResumeLink').attr('href', `/uploads/resumes/${data.resume}`);
+        
+        // Update timeline
+        updateTimeline(data.timeline);
+        
+        $('#applicationDetailsModal').modal('show');
+    });
+}
+
+function withdrawApplication(applicationId) {
+    if (confirm('Are you sure you want to withdraw this application? This action cannot be undone.')) {
+        // Implement AJAX call to withdraw application
+        $.post(`/student-services/application/${applicationId}/withdraw`, function(data) {
+            if (data.success) {
+                location.reload();
+            }
+        });
+    }
+}
+
+function getStatusBadgeClass(status) {
+    switch (status) {
+        case 'selected': return 'success';
+        case 'shortlisted': return 'warning';
+        case 'interviewed': return 'primary';
+        case 'applied': return 'info';
+        default: return 'secondary';
+    }
+}
+
+function updateTimeline(timeline) {
+    const timelineContainer = $('#modalTimeline');
+    timelineContainer.empty();
+    
+    timeline.forEach(event => {
+        const timelineItem = $(`
+            <div class="timeline-item">
+                <div class="timeline-date">${event.date}</div>
+                <div class="timeline-content">
+                    <h6>${event.title}</h6>
+                    <p>${event.description}</p>
+                </div>
+            </div>
+        `);
+        timelineContainer.append(timelineItem);
+    });
+}
+
+// Initialize tooltips
+var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl)
+})
+</script>
+
+<style>
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline-item {
+    position: relative;
+    padding-bottom: 20px;
+    border-left: 2px solid #e9ecef;
+    padding-left: 20px;
+}
+
+.timeline-item:before {
+    content: '';
+    position: absolute;
+    left: -7px;
+    top: 0;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #0d6efd;
+}
+
+.timeline-date {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-bottom: 5px;
+}
+
+.timeline-content {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 4px;
+}
+
+.timeline-content h6 {
+    margin: 0 0 5px;
+}
+
+.timeline-content p {
+    margin: 0;
+    font-size: 0.875rem;
+}
+
+.badge {
+    font-weight: normal;
+    padding: 6px 10px;
+}
+</style>
+{% endblock %}

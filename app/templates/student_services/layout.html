@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+<div class="container mt-4">
+    <div class="row">
+        <!-- Side Navigation -->
+        <div class="col-md-3">
+            <div class="list-group">
+                <a href="{{ url_for('student_services.fee_payment') }}" 
+                   class="list-group-item list-group-item-action {% if request.endpoint == 'student_services.fee_payment' %}active{% endif %}">
+                    <i class="fas fa-money-bill-wave me-2"></i> Fee Payment
+                </a>
+                <a href="{{ url_for('student_services.document_request') }}"
+                   class="list-group-item list-group-item-action {% if request.endpoint == 'student_services.document_request' %}active{% endif %}">
+                    <i class="fas fa-file-alt me-2"></i> Request Documents
+                </a>
+                <a href="{{ url_for('student_services.grievance') }}"
+                   class="list-group-item list-group-item-action {% if request.endpoint == 'student_services.grievance' %}active{% endif %}">
+                    <i class="fas fa-exclamation-circle me-2"></i> Submit Grievance
+                </a>
+                <a href="{{ url_for('student_services.job_postings') }}"
+                   class="list-group-item list-group-item-action {% if request.endpoint == 'student_services.job_postings' %}active{% endif %}">
+                    <i class="fas fa-briefcase me-2"></i> Job Postings
+                </a>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Quick Links</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="{{ url_for('student_services.fee_payment_history') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-history me-2"></i> Payment History
+                    </a>
+                    <a href="{{ url_for('student_services.document_request_history') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-folder me-2"></i> Document Requests
+                    </a>
+                    <a href="{{ url_for('student_services.grievance_history') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-clipboard-list me-2"></i> Grievance History
+                    </a>
+                    <a href="{{ url_for('student_services.application_history') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-user-tie me-2"></i> Application History
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="col-md-9">
+            {% block service_content %}{% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}
